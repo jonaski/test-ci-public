@@ -1,0 +1,30 @@
+name: Build
+on: push
+
+jobs:
+
+  upload:
+    name: Upload
+    strategy:
+      matrix:
+       arch: [ debug, release ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create file
+        run: echo "TEST" > file-${{matrix.arch}}.txt
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: releases
+          path: file-${{matrix.arch}}.txt
+
+  download:
+    name: Download
+    runs-on: ubuntu-latest
+    needs:
+      - upload
+    steps:
+      - name: Download
+        uses: actions/download-artifact@v4
+        with:
+          path: releases
