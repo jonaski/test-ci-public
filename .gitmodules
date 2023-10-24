@@ -1,0 +1,3 @@
+[submodule "test-ci-public2"]
+	path = test-ci-public2
+	url = git@github.com:jonaski/test-ci-public2.git
