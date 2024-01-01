@@ -28,5 +28,5 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: releases
-      - name: ls
-        run: ls -la
+      - name: find
+        run: find .
