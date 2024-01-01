@@ -15,7 +15,7 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: releases
+          name: file-${{matrix.arch}}
           path: file-${{matrix.arch}}.txt
 
   download:
@@ -28,3 +28,5 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: releases
+      - name: ls
+        run: ls -la
