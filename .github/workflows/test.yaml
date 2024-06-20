@@ -372,41 +372,41 @@ jobs:
         run: cmake --install .
 
 
-      - name: Download libxml2
-        shell: bash
-        working-directory: downloads
-        run: curl ${{env.curl_options}} https://gitlab.gnome.org/GNOME/libxml2/-/archive/v${{env.libxml2_version}}/libxml2-v${{env.libxml2_version}}.tar.bz2
-
-      - name: Extract libxml2
-        shell: bash
-        working-directory: build
-        run: tar -xf ../downloads/libxml2-v${{env.libxml2_version}}.tar.bz2 || true
-
-      - name: Configure libxml2
-        shell: cmd
-        env:
-          CL: "/MP"
-          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
-          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
-        working-directory: build/libxml2-v${{env.libxml2_version}}
-        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "NMake Makefiles" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path_backslash}}" -DBUILD_SHARED_LIBS=ON -DLIBXML2_WITH_PYTHON=OFF -DLIBXML2_WITH_ZLIB=ON -DLIBXML2_WITH_LZMA=ON -DLIBXML2_WITH_ICONV=ON -DLIBXML2_WITH_ICU=ON
-
-      - name: Build libxml2
-        shell: cmd
-        env:
-          CL: "/MP"
-        working-directory: build/libxml2-v${{env.libxml2_version}}/build
-        run: cmake --build .
-
-      - name: Install libxml2
-        shell: cmd
-        working-directory: build/libxml2-v${{env.libxml2_version}}/build
-        run: cmake --install .
-
-      - name: copy libxml2 (debug)
-        if: env.buildtype == 'debug'
-        shell: bash
-        run: cp ${{env.prefix_path_unix}}/lib/libxml2d.lib ${{env.prefix_path_unix}}/lib/libxml2.lib
+      # - name: Download libxml2
+      #   shell: bash
+      #   working-directory: downloads
+      #   run: curl ${{env.curl_options}} https://gitlab.gnome.org/GNOME/libxml2/-/archive/v${{env.libxml2_version}}/libxml2-v${{env.libxml2_version}}.tar.bz2
+      #
+      # - name: Extract libxml2
+      #   shell: bash
+      #   working-directory: build
+      #   run: tar -xf ../downloads/libxml2-v${{env.libxml2_version}}.tar.bz2 || true
+      #
+      # - name: Configure libxml2
+      #   shell: cmd
+      #   env:
+      #     CL: "/MP"
+      #     PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
+      #     PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
+      #   working-directory: build/libxml2-v${{env.libxml2_version}}
+      #   run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "NMake Makefiles" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path_backslash}}" -DBUILD_SHARED_LIBS=ON -DLIBXML2_WITH_PYTHON=OFF -DLIBXML2_WITH_ZLIB=ON -DLIBXML2_WITH_LZMA=ON -DLIBXML2_WITH_ICONV=ON -DLIBXML2_WITH_ICU=ON
+      #
+      # - name: Build libxml2
+      #   shell: cmd
+      #   env:
+      #     CL: "/MP"
+      #   working-directory: build/libxml2-v${{env.libxml2_version}}/build
+      #   run: cmake --build .
+      #
+      # - name: Install libxml2
+      #   shell: cmd
+      #   working-directory: build/libxml2-v${{env.libxml2_version}}/build
+      #   run: cmake --install .
+      #
+      # - name: copy libxml2 (debug)
+      #   if: env.buildtype == 'debug'
+      #   shell: bash
+      #   run: cp ${{env.prefix_path_unix}}/lib/libxml2d.lib ${{env.prefix_path_unix}}/lib/libxml2.lib
 
 
       - name: Download libffi
