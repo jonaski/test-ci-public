@@ -98,7 +98,12 @@ jobs:
         shell: cmd
         run: |
           where rustc
+          where cargo-c
           dir C:\Users\runneradmin\.cargo\bin
+
+      - name: Install cargo-c
+        shell: cmd
+        run: cargo install cargo-c
 
       - name: Cleanup PATH
         uses: egor-tensin/cleanup-path@v4
