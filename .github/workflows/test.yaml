@@ -1011,7 +1011,9 @@ jobs:
           CFLAGS: -I${{env.prefix_path}}/include
           CXXFLAGS: -I${{env.prefix_path}}/include
           LDFLAGS: -L${{env.prefix_path}}/lib -Wl,-rpath,${{env.prefix_path}}/lib
-        run: cargo install cargo-c
+        run: |
+          export LIBRARY_PATH=$LIBRARY_PATH:${{env.prefix_path}}/lib
+          cargo install cargo-c
 
 
       - name: Download gst-plugins-rs
