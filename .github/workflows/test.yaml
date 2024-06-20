@@ -405,75 +405,6 @@ jobs:
         run: make install
 
 
-      - name: Download nasm
-        shell: bash
-        working-directory: downloads
-        run: curl ${{env.curl_options}} https://www.nasm.us/pub/nasm/releasebuilds/${{env.nasm_version}}/nasm-${{env.nasm_version}}.tar.xz
-
-      - name: Extract nasm
-        shell: bash
-        working-directory: build
-        run: tar -xf ../downloads/nasm-${{env.nasm_version}}.tar.xz
-
-      - name: Autogen nasm
-        shell: bash
-        working-directory: build/nasm-${{env.nasm_version}}
-        run: ./autogen.sh
-
-      - name: Configure nasm
-        shell: bash
-        env:
-          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path}}/bin/pkgconf
-          PKG_CONFIG_PATH: ${{env.prefix_path}}/lib/pkgconfig
-          CFLAGS: -I${{env.prefix_path}}/include
-          CXXFLAGS: -I${{env.prefix_path}}/include
-          LDFLAGS: -L${{env.prefix_path}}/lib -Wl,-rpath,${{env.prefix_path}}/lib
-        working-directory: build/nasm-${{env.nasm_version}}
-        run: ./configure --prefix="${{env.prefix_path}}"
-
-      - name: Build nasm
-        shell: bash
-        working-directory: build/nasm-${{env.nasm_version}}
-        run: make -j ${{env.make_jobs}}
-
-      - name: Install nasm
-        shell: bash
-        working-directory: build/nasm-${{env.nasm_version}}
-        run: make install
-
-
-      - name: Download yasm
-        shell: bash
-        working-directory: downloads
-        run: curl ${{env.curl_options}} http://www.tortall.net/projects/yasm/releases/yasm-${{env.yasm_version}}.tar.gz
-
-      - name: Extract yasm
-        shell: bash
-        working-directory: build
-        run: tar -xf ../downloads/yasm-${{env.yasm_version}}.tar.gz
-
-      - name: Configure yasm
-        shell: bash
-        env:
-          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path}}/bin/pkgconf
-          PKG_CONFIG_PATH: ${{env.prefix_path}}/lib/pkgconfig
-          CFLAGS: -I${{env.prefix_path}}/include
-          CXXFLAGS: -I${{env.prefix_path}}/include
-          LDFLAGS: -L${{env.prefix_path}}/lib -Wl,-rpath,${{env.prefix_path}}/lib
-        working-directory: build/yasm-${{env.yasm_version}}
-        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path}}"
-
-      - name: Build yasm
-        shell: bash
-        working-directory: build/yasm-${{env.yasm_version}}/build
-        run: cmake --build . --parallel ${{env.make_jobs}}
-
-      - name: Install yasm
-        shell: bash
-        working-directory: build/yasm-${{env.yasm_version}}/build
-        run: cmake --install .
-
-
       - name: Download zlib
         shell: bash
         working-directory: downloads
@@ -568,38 +499,6 @@ jobs:
         shell: bash
         working-directory: build/pcre2-${{env.pcre2_version}}/build
         run: cmake --install .
-
-
-      - name: Download libiconv
-        shell: bash
-        working-directory: downloads
-        run: curl ${{env.curl_options}} https://ftp.gnu.org/gnu/libiconv/libiconv-${{env.libiconv_version}}.tar.gz
-
-      - name: Extract libiconv
-        shell: bash
-        working-directory: build
-        run: tar -xf ../downloads/libiconv-${{env.libiconv_version}}.tar.gz
-
-      - name: Configure libiconv
-        shell: bash
-        working-directory: build/libiconv-${{env.libiconv_version}}
-        run: ./configure --prefix="${{env.prefix_path}}" --disable-static --enable-shared --enable-rpath --disable-nls --disable-silent-rules
-
-      - name: Build libiconv
-        shell: bash
-        env:
-          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path}}/bin/pkgconf
-          PKG_CONFIG_PATH: ${{env.prefix_path}}/lib/pkgconfig
-          CFLAGS: -I${{env.prefix_path}}/include
-          CXXFLAGS: -I${{env.prefix_path}}/include
-          LDFLAGS: -L${{env.prefix_path}}/lib -Wl,-rpath,${{env.prefix_path}}/lib
-        working-directory: build/libiconv-${{env.libiconv_version}}
-        run: make -j ${{env.make_jobs}}
-
-      #- name: Install libiconv
-        #shell: bash
-        #working-directory: build/libiconv-${{env.libiconv_version}}
-        #run: make install
 
 
       - name: Download flex
