@@ -94,6 +94,11 @@ jobs:
           echo "prefix_path_forwardslash=c:/strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
           echo "prefix_path_unix=/c/strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
 
+      - name: Check for rust
+        shell: cmd
+        run: |
+          where rustc
+
       - name: Cleanup PATH
         uses: egor-tensin/cleanup-path@v4
         with:
