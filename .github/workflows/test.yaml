@@ -317,6 +317,10 @@ jobs:
         run: echo "${{env.prefix_path}}/bin" >> $GITHUB_PATH
 
 
+      - name: Install cargo-c
+        shell: bash
+        run: cargo install cargo-c
+
       - name: Install python dependencies
         shell: bash
         run: pip3 install meson ninja setuptools packaging
