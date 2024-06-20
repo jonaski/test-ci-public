@@ -1005,7 +1005,6 @@ jobs:
       - name: Install cargo-c
         shell: bash
         env:
-          CL: "/MP"
           PKG_CONFIG_EXECUTABLE: ${{env.prefix_path}}/bin/pkgconf
           PKG_CONFIG_PATH: ${{env.prefix_path}}/lib/pkgconfig
           CFLAGS: -I${{env.prefix_path}}/include
@@ -1024,7 +1023,6 @@ jobs:
       - name: Configure gst-plugins-rs
         shell: bash
         env:
-          CL: "/MP"
           PKG_CONFIG_EXECUTABLE: ${{env.prefix_path}}/bin/pkgconf
           PKG_CONFIG_PATH: ${{env.prefix_path}}/lib/pkgconfig
           CFLAGS: -I${{env.prefix_path}}/include
@@ -1040,8 +1038,6 @@ jobs:
 
       - name: Build gst-plugins-rs
         shell: bash
-        env:
-          CL: "/MP"
         working-directory: build/gst-plugins-rs/build
         run: ninja
 
