@@ -938,7 +938,17 @@ jobs:
       - name: Build gst-plugins-rs
         shell: bash
         working-directory: build/gst-plugins-rs/build
-        run: ninja
+        run: ninja || true
+
+      - name: ls
+        shell: bash
+        working-directory: build/gst-plugins-rs/build
+        run: ls -la
+
+      - name: find
+        shell: bash
+        working-directory: build/gst-plugins-rs/build
+        run: find .
 
       - name: Install gst-plugins-rs
         shell: bash
