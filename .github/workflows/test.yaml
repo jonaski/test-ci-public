@@ -317,10 +317,6 @@ jobs:
         run: echo "${{env.prefix_path}}/bin" >> $GITHUB_PATH
 
 
-      - name: Install cargo-c
-        shell: bash
-        run: cargo install cargo-c
-
       - name: Install python dependencies
         shell: bash
         run: pip3 install meson ninja setuptools packaging
@@ -508,6 +504,38 @@ jobs:
         shell: bash
         working-directory: build/zlib-${{env.zlib_version}}/build
         run: cmake --install .
+
+
+      - name: Download openssl
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://www.openssl.org/source/openssl-${{env.openssl_version}}.tar.gz
+
+      - name: Extract openssl
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/openssl-${{env.openssl_version}}.tar.gz
+
+      - name: Configure openssl
+        shell: bash
+        env:
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path}}/bin/pkgconf
+          PKG_CONFIG_PATH: ${{env.prefix_path}}/lib/pkgconfig
+          CFLAGS: -I${{env.prefix_path}}/include
+          CXXFLAGS: -I${{env.prefix_path}}/include
+          LDFLAGS: -L${{env.prefix_path}}/lib -Wl,-rpath,${{env.prefix_path}}/lib
+        working-directory: build/openssl-${{env.openssl_version}}
+        run: perl Configure shared zlib no-capieng no-tests --prefix=${{env.prefix_path}} --libdir=lib --openssldir=${{env.prefix_path}}/ssl --${{env.buildtype}} --with-zlib-include=${{env.prefix_path}}/include
+
+      - name: Build openssl
+        shell: bash
+        working-directory: build/openssl-${{env.openssl_version}}
+        run: make -j ${{env.make_jobs}}
+
+      - name: Install openssl
+        shell: bash
+        working-directory: build/openssl-${{env.openssl_version}}
+        run: make install_sw
 
 
       - name: Download pcre2
@@ -972,6 +1000,11 @@ jobs:
         shell: bash
         working-directory: build/gst-plugins-base-${{env.gstreamer_version}}/build
         run: ninja install
+
+
+      - name: Install cargo-c
+        shell: bash
+        run: cargo install cargo-c
 
 
       - name: Download gst-plugins-rs
