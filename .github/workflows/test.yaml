@@ -810,7 +810,7 @@ jobs:
 
       - name: Download gst-plugins-rs
         shell: bash
-        working-directory: downloads
+        working-directory: build
         run: git clone -b "${{env.gstreamer_plugins_rs_version}}" "https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git"
 
       - name: Configure gst-plugins-rs
