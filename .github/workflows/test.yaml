@@ -933,12 +933,12 @@ jobs:
       - name: Copy dependencies
         shell: bash
         working-directory: build/gst-plugins-rs/build
-        run: cp ${{env.prefix_path}}/lib/{libglib-2.0.0.dylib,libgobject-2.0.0.dylib,libgio-2.0.0.dylib,libintl.8.dylib,libgstreamer-1.0.0.dylib,libgstbase-1.0.0.dylib} .
+        run: cp ${{env.prefix_path}}/lib/{libglib-2.0.0.dylib,libgobject-2.0.0.dylib,libgio-2.0.0.dylib,libintl.8.dylib,libgstreamer-1.0.0.dylib,libgstbase-1.0.0.dylib} target/x86_64-apple-darwin/${{env.buildtype}}/
 
       - name: Build gst-plugins-rs
         shell: bash
         working-directory: build/gst-plugins-rs/build
-        run: ninja || true
+        run: ninja
 
       - name: ls
         shell: bash
