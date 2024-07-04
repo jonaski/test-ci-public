@@ -1,0 +1,26 @@
+name: Create release tarball
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  release:
+    types: [published]
+
+jobs:
+  create-release-tarball:
+    name: Create release tarball
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Install packages
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: sudo apt install -y git jq gh libusb-1.0-0-dev python3-pycryptodome
+
+      - name: Create tarball
+        run: echo TEST > test.txt
+
+      - name: Attach files to release
+        if: github.event_name == 'release'
+        run: gh release upload "${{github.event.release.tag_name}}" "test.txt"
