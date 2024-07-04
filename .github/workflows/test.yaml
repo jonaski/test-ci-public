@@ -1,0 +1,540 @@
+name: Build
+on: [push, pull_request]
+
+env:
+  nasm_version: '3.01'
+
+  yasm_version: '1.3.0'
+
+  win_flex_bison_version: '2.5.25'
+
+  pkgconf_version: '2.5.1'
+
+  getopt_win_version: '2.42.0'
+
+  zlib_version: '1.3.1'
+
+  openssl_version: '3.6.0'
+
+  gmp_version: '6.2.1-4'
+
+  nettle_version: '3.10.1_release_20241230'
+
+  gnutls_version: '3.8.8'
+
+  libpng_version: '1.6.50'
+
+  libjpeg_turbo_version: '3.1.2'
+
+  pcre2_version: '10.47'
+
+  bzip2_version: '1.0.8'
+
+  xz_version: '5.8.1'
+
+  brotli_version: '1.2.0'
+
+  icu4c_version: '78.1'
+
+  pixman_version: '0.46.4'
+
+  expat_version: '2.7.3'
+
+  boost_version: '1.89.0'
+
+  libxml2_version: '2.15.1'
+
+  nghttp2_version: '1.68.0'
+
+  dlfcn_version: '1.4.2'
+
+  libpsl_version: '0.21.5'
+
+  orc_version: '0.4.41'
+
+  sqlite3_version: '3510000'
+
+  glib_version: '2.87.0'
+
+  libsoup_version: '3.6.5'
+
+  glib_networking_version: '2.80.1'
+
+  freetype_version: '2.14.1'
+
+  harfbuzz_version: '12.2.0'
+
+  libogg_version: '1.3.6'
+
+  libvorbis_version: '1.3.7'
+
+  flac_version: '1.5.0'
+
+  wavpack_version: '5.8.1'
+
+  opus_version: '1.5.2'
+
+  opusfile_version: '0.12'
+
+  speex_version: '1.2.1'
+
+  mpg123_version: '1.33.3'
+
+  lame_version: '3.100'
+
+  twolame_version: '0.4.0'
+
+  musepack_version: '475'
+
+  libopenmpt_version: '0.8.3'
+
+  libgme_version: '0.6.4'
+
+  faad2_version: '2.11.2'
+
+  faac_version: '1.31.1'
+
+  fdk_aac_version: '2.0.3'
+
+  utfcpp_version: '4.0.8'
+
+  taglib_version: '2.1.1'
+
+  libbs2b_version: '3.1.0'
+
+  libebur128_version: '1.2.6'
+
+  fftw_version: '3.3.10'
+
+  ffmpeg_version: '8.0'
+
+  chromaprint_version: '1.6.0'
+
+  gstreamer_version: '1.26.8'
+
+  gstreamer_plugins_rs_version: '0.14.1'
+
+  qt_version: '6.10.1'
+
+  kdsingleapplication_version: '1.2.0'
+
+  gettext_version: '0.26-v1.17'
+
+  sparsehash_version: '2.0.4'
+
+  rapidjson_version: '1.1.0'
+
+  pe_parse_version: '2.1.1'
+
+  max_releases: '6'
+
+  curl_options: '-f -O -L --connect-timeout 60 -m 900 --retry 15 --retry-delay 10 --retry-max-time 300 --retry-all-errors'
+
+  sourceforge_mirror: 'downloads.sourceforge.net'
+
+  qt_mirror: 'mirrors.ukfast.co.uk/sites/qt.io'
+
+  cmake_loglevel: 'DEBUG'
+
+  cmake_generator: 'Ninja'
+
+
+jobs:
+
+  setup:
+    name: Setup
+    if: (!contains(github.event.head_commit.message, 'skip ci'))
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{steps.set_release_tag.outputs.release_tag}}
+    steps:
+      - name: Set release tag
+        id: set_release_tag
+        shell: bash
+        run: echo "release_tag=release-$GITHUB_RUN_ID" >> $GITHUB_OUTPUT
+
+  build:
+    name: Build Windows MSVC
+    needs:
+      - setup
+
+    if: (!contains(github.event.head_commit.message, 'skip ci'))
+
+    strategy:
+
+      matrix:
+       include:
+         - name: "Windows x86_64 debug"
+           runner: windows-2022
+           arch: x86_64
+           buildtype: debug
+
+         - name: "Windows x86_64 release"
+           runner: windows-2022
+           arch: x86_64
+           buildtype: release
+
+         - name: "Windows x86 debug"
+           runner: windows-2022
+           arch: x86
+           buildtype: debug
+
+         - name: "Windows x86 release"
+           runner: windows-2022
+           arch: x86
+           buildtype: release
+
+         - name: "Windows arm64 debug"
+           runner: windows-11-arm
+           arch: arm64
+           buildtype: debug
+
+         - name: "Windows arm64 release"
+           runner: windows-11-arm
+           arch: arm64
+           buildtype: release
+
+    runs-on: ${{matrix.runner}}
+
+    steps:
+
+      - name: Set buildtype
+        shell: bash
+        run: echo "buildtype=$(echo ${{matrix.buildtype}} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Set cmake and meson buildtype
+        shell: bash
+        run: |
+          echo "cmake_buildtype=$(echo ${{env.buildtype}} | sed 's/.*/\u&/')" >> $GITHUB_ENV
+          echo "meson_buildtype=${{env.buildtype}}" >> $GITHUB_ENV
+
+      - name: Set prefix path
+        shell: bash
+        run: |
+          echo "prefix_path_backslash=c:\strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+          echo "prefix_path_backslash2=c:\\\\strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+          echo "prefix_path_forwardslash=c:/strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+          echo "prefix_path_unix=/c/strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+
+      - name: Show SDK versions
+        shell: bash
+        run: ls -la "c:/Program Files (x86)/Windows Kits/10/include"
+
+      - name: Set SDK version
+        if: matrix.arch != 'arm64'
+        shell: bash
+        run: echo "sdk_version=10.0.19041.0" >> $GITHUB_ENV
+
+      - name: Set SDK version
+        if: matrix.arch == 'arm64'
+        shell: bash
+        run: echo "sdk_version=10.0.26100.0" >> $GITHUB_ENV
+
+      - name: Set python version
+        shell: bash
+        run: echo "python_version="$(ls -1 /c/hostedtoolcache/windows/Python | sort -V | tail -1)"" >> $GITHUB_ENV
+
+      - name: Cleanup PATH
+        uses: egor-tensin/cleanup-path@v4
+        with:
+          dirs: ${{env.prefix_path_backslash}}\bin;C:\Windows;C:\Windows\system32;C:\Program Files\Git\bin;C:\Program Files\CMake\bin;C:\Program Files\GitHub CLI;C:\ProgramData\Chocolatey\bin;C:\Strawberry\perl\bin;C:\hostedtoolcache\windows\Python\${{env.python_version}}\x64;C:\hostedtoolcache\windows\Python\${{env.python_version}}\x64\Scripts;C:\Users\runneradmin\.cargo\bin
+
+      - name: Set lib postfix
+        if: env.buildtype == 'debug'
+        shell: bash
+        run: echo "lib_postfix=d" >> $GITHUB_ENV
+
+      - name: Set arch variables (x86)
+        if: matrix.arch == 'x86'
+        shell: bash
+        run: |
+          echo "openssl_platform=VC-WIN32" >> $GITHUB_ENV
+          echo "msbuild_platform=win32" >> $GITHUB_ENV
+          echo "arch_short=x86" >> $GITHUB_ENV
+          echo "arch_win=win32" >> $GITHUB_ENV
+          echo "arch_bits=32" >> $GITHUB_ENV
+          echo "libdir=lib" >> $GITHUB_ENV
+          echo "bindir=bin" >> $GITHUB_ENV
+          echo "libjpeg_turbo_simd=ON" >> $GITHUB_ENV
+          echo "boost_architecture=x86" >> $GITHUB_ENV
+          echo "glib_networking_gnutls=enabled" >> $GITHUB_ENV
+          echo "gst_twolame=enabled" >> $GITHUB_ENV
+          echo "gst_faac=enabled" >> $GITHUB_ENV
+
+      - name: Set arch variables (x86_64)
+        if: matrix.arch == 'x86_64'
+        shell: bash
+        run: |
+          echo "openssl_platform=VC-WIN64A" >> $GITHUB_ENV
+          echo "msbuild_platform=x64" >> $GITHUB_ENV
+          echo "arch_short=x64" >> $GITHUB_ENV
+          echo "arch_win=win64" >> $GITHUB_ENV
+          echo "arch_bits=64" >> $GITHUB_ENV
+          echo "libdir=lib64" >> $GITHUB_ENV
+          echo "bindir=bin64" >> $GITHUB_ENV
+          echo "libjpeg_turbo_simd=ON" >> $GITHUB_ENV
+          echo "boost_architecture=x86" >> $GITHUB_ENV
+          echo "glib_networking_gnutls=enabled" >> $GITHUB_ENV
+          echo "gst_twolame=enabled" >> $GITHUB_ENV
+          echo "gst_faac=enabled" >> $GITHUB_ENV
+
+      - name: Set arch variables (arm64)
+        if: matrix.arch == 'arm64'
+        shell: bash
+        run: |
+          echo "openssl_platform=VC-WIN64-ARM" >> $GITHUB_ENV
+          echo "msbuild_platform=arm64" >> $GITHUB_ENV
+          echo "arch_short=arm64" >> $GITHUB_ENV
+          echo "arch_win=win64" >> $GITHUB_ENV
+          echo "arch_bits=64" >> $GITHUB_ENV
+          echo "libdir=libARM64" >> $GITHUB_ENV
+          echo "bindir=binARM64" >> $GITHUB_ENV
+          echo "libjpeg_turbo_simd=OFF" >> $GITHUB_ENV
+          echo "boost_architecture=arm" >> $GITHUB_ENV
+          echo "glib_networking_gnutls=disabled" >> $GITHUB_ENV
+          echo "gst_twolame=disabled" >> $GITHUB_ENV
+          echo "gst_faac=disabled" >> $GITHUB_ENV
+
+      - name: Set extra version variables
+        shell: bash
+        run: |
+          echo "boost_version_underscore=$(echo ${{env.boost_version}} | sed 's/\./_/g')" >> $GITHUB_ENV
+          echo "glib_version_short=$(echo ${{env.glib_version}} | cut -d '.' -f 1-2)" >> $GITHUB_ENV
+          echo "glib_networking_version_short=$(echo ${{env.glib_networking_version}} | cut -d '.' -f 1-2)" >> $GITHUB_ENV
+          echo "libsoup_version_short=$(echo ${{env.libsoup_version}} | cut -d '.' -f 1-2)" >> $GITHUB_ENV
+          echo "qt_version_short=$(echo ${{env.qt_version}} | cut -d '.' -f 1-2)" >> $GITHUB_ENV
+          echo "expat_version_underscore=$(echo ${{env.expat_version}} | sed 's/\./_/g')" >> $GITHUB_ENV
+          echo "gettext_only_version=$(echo ${{env.gettext_version}} | cut -d '-' -f 1)" >> $GITHUB_ENV
+          echo "gettext_iconv_version=$(echo ${{env.gettext_version}} | cut -d '-' -f 2 | sed 's/^v//g')" >> $GITHUB_ENV
+          echo "libxml2_version_short=$(echo ${{env.libxml2_version}} | cut -d '.' -f 1-2)" >> $GITHUB_ENV
+
+      - name: Create directories
+        shell: bash
+        run: mkdir -p ${{env.prefix_path_unix}}/{bin,lib,include}
+
+      - name: Update PATH
+        shell: pwsh
+        run: echo "${{env.prefix_path_backslash}}\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Copy bin files
+        shell: bash
+        run: cp /c/strawberry/c/bin/{patch.exe,strip.exe,strings.exe,objdump.exe} ${{env.prefix_path_unix}}/bin
+
+      - name: Delete conflicting libraries
+        shell: bash
+        run: rm -rf /c/{msys64,mingw32,mingw64} /c/strawberry/c "/c/program files/OpenSSL"
+
+      - name: Delete conflicting icu
+        shell: bash
+        run: find "/c/program files (x86)/windows kits/" -type f \( -iname 'icu*.lib' -o -iname 'icu*.h' \) -print -delete
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+
+      - name: Install python dependencies
+        shell: cmd
+        run: pip install meson ninja
+
+
+      - name: Setup MSVC Environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{matrix.arch}}
+          sdk: ${{env.sdk_version}}
+          vsversion: 2022
+
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+
+      - name: Create downloads directory
+        shell: cmd
+        run: mkdir downloads
+
+      - name: Create build directory
+        shell: cmd
+        run: mkdir build
+
+
+      - id: set-nasm-filename
+        name: Set nasm filename
+        shell: bash
+        run: echo "nasm-filename=nasm-${{env.nasm_version}}-installer-$(test "${{matrix.arch}}" = "arm64" && echo "x64" || echo "${{env.arch_short}}").exe" >> $GITHUB_OUTPUT
+
+      - name: Download nasm
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://www.nasm.us/pub/nasm/releasebuilds/${{env.nasm_version}}/${{env.arch_win}}/${{steps.set-nasm-filename.outputs.nasm-filename}}
+
+      - name: Create nasm directory
+        shell: cmd
+        run: mkdir c:\nasm
+
+      - name: Extract nasm
+        shell: cmd
+        working-directory: c:/nasm
+        run: 7z x "${{github.workspace}}\downloads\${{steps.set-nasm-filename.outputs.nasm-filename}}"
+
+      - name: Copy nasm
+        shell: bash
+        run: cp /c/nasm/nasm.exe /c/nasm/nasmw.exe
+
+      - name: Add nasm to PATH
+        shell: pwsh
+        run: echo "c:\nasm" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+
+      - name: Download win_flex_bison
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://github.com/lexxmark/winflexbison/releases/download/v${{env.win_flex_bison_version}}/win_flex_bison-${{env.win_flex_bison_version}}.zip
+
+      - name: Create win_flex_bison directory
+        shell: cmd
+        run: mkdir c:\win_flex_bison
+
+      - name: Extract win_flex_bison
+        shell: cmd
+        working-directory: c:\win_flex_bison
+        run: 7z x "${{github.workspace}}\downloads\win_flex_bison-${{env.win_flex_bison_version}}.zip"
+
+      - name: Add win_flex_bison to PATH
+        shell: pwsh
+        run: echo "c:\win_flex_bison" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+
+      - name: Download gettext
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://github.com/mlocati/gettext-iconv-windows/releases/download/v${{env.gettext_only_version}}-v${{env.gettext_iconv_version}}/gettext${{env.gettext_only_version}}-iconv${{env.gettext_iconv_version}}-static-${{env.arch_bits}}.zip
+
+      - name: Extract gettext
+        shell: cmd
+        working-directory: build
+        run: |
+          mkdir gettext
+          cd gettext
+          7z x "..\..\downloads\gettext${{env.gettext_only_version}}-iconv${{env.gettext_iconv_version}}-static-${{env.arch_bits}}.zip"
+
+      - name: Install gettext
+        shell: bash
+        working-directory: build/gettext
+        run: cp -v bin/*.exe ${{env.prefix_path_forwardslash}}/bin/
+
+
+      - name: Download pkgconf
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://github.com/pkgconf/pkgconf/archive/refs/tags/pkgconf-${{env.pkgconf_version}}.tar.gz
+
+      - name: Extract pkgconf
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/pkgconf-${{env.pkgconf_version}}.tar.gz
+
+      - name: Configure pkgconf
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/pkgconf-pkgconf-${{env.pkgconf_version}}
+        run: meson setup --buildtype=${{env.meson_buildtype}} --default-library=shared --prefix=${{env.prefix_path_backslash}} --wrap-mode=nodownload -Dtests=disabled build
+
+      - name: Build pkgconf
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/pkgconf-pkgconf-${{env.pkgconf_version}}/build
+        run: ninja
+
+      - name: Install pkgconf
+        shell: cmd
+        working-directory: build/pkgconf-pkgconf-${{env.pkgconf_version}}/build
+        run: ninja install
+
+      - name: Copy pkgconf
+        shell: cmd
+        run: copy ${{env.prefix_path_backslash}}\bin\pkgconf.exe ${{env.prefix_path_backslash}}\bin\pkg-config.exe
+
+
+      - name: Download yasm
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} http://www.tortall.net/projects/yasm/releases/yasm-${{env.yasm_version}}.tar.gz
+
+      - name: Extract yasm
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/yasm-${{env.yasm_version}}.tar.gz
+
+      - name: Patch yasm
+        shell: bash
+        working-directory: build/yasm-${{env.yasm_version}}
+        run: patch -p1 < ../../patches/yasm-cmake.patch
+
+      - name: Configure yasm
+        shell: cmd
+        env:
+          CL: -MP
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
+          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
+        working-directory: build/yasm-${{env.yasm_version}}
+        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "${{env.cmake_generator}}" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path_backslash}}"
+
+      - name: Build yasm
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/yasm-${{env.yasm_version}}/build
+        run: cmake --build .
+
+      - name: Install yasm
+        shell: cmd
+        working-directory: build/yasm-${{env.yasm_version}}/build
+        run: cmake --install .
+
+
+      - name: Download VSYASM
+        if: matrix.arch != 'arm64'
+        shell: cmd
+        working-directory: downloads
+        #run: git clone --recurse-submodules https://github.com/ShiftMediaProject/VSYASM
+        run: |
+          mkdir VSYASM
+          cd VSYASM
+          curl ${{env.curl_options}} https://github.com/ShiftMediaProject/VSYASM/releases/download/1.0/VSYASM.zip
+          7z x VSYASM.zip
+
+      - name: Install VSYASM
+        if: matrix.arch != 'arm64'
+        shell: cmd
+        working-directory: downloads\VSYASM
+        run: install_script.bat
+
+
+      - name: Download ffmpeg
+        shell: bash
+        working-directory: build
+        run: git clone --depth 1 --recurse-submodules -b "meson-${{env.ffmpeg_version}}" https://gitlab.freedesktop.org/gstreamer/meson-ports/ffmpeg
+
+      - name: Configure ffmpeg
+        shell: cmd
+        env:
+          CL: -MP
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
+          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
+        working-directory: build/ffmpeg
+        run: meson setup --buildtype=${{env.meson_buildtype}} --default-library=shared --prefix=${{env.prefix_path_backslash}} --pkg-config-path=${{env.prefix_path_backslash}}\lib\pkgconfig --wrap-mode=nodownload -Dtests=disabled -Dgpl=enabled build
+
+      - name: Build ffmpeg
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/ffmpeg/build
+        run: ninja
+
+      - name: Install ffmpeg
+        shell: cmd
+        working-directory: build/ffmpeg/build
+        run: ninja install
+
