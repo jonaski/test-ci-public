@@ -1,0 +1,23 @@
+name: TEST
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  release:
+    types: [published]
+
+jobs:
+  test:
+    name: TEST
+    if: !(github.event.pusher.name == 'strawbsboot' && contains(github.event.head_commit.message, 'New translations'))
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TEST
+        run: echo TEST
