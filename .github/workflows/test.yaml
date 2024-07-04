@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    outputs:
+      site_name: ${{steps.set_site_name.outputs.site_name}}
+    steps:
+      - name: Test
+        id: test
+        run: |
+          echo "github.ref: ${{github.ref}}"
+          echo "github.ref_name: ${{github.ref_name}}"
+      - name: Set name
+        id: set_site_name
+        run: |
+          test "${{github.ref}}" = "refs/heads/master" && echo "site_name=my-web" >> $GITHUB_OUTPUT || echo "site_name=my-web-test" >> $GITHUB_OUTPUT
+
+  build:
+    name: Build
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check site name
+        if: needs.setup.outputs.site_name == ''
+        run: false
+
+      - name: Show site name
+        run: |
+          echo "Site name: ${{needs.setup.outputs.site_name}}"
