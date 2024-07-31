@@ -1,14 +1,17 @@
 name: Test
 on: push
 
-env:
-  MACOSX_DEPLOYMENT_TARGET: '13.0'
-
 jobs:
+
   test:
     name: Test
     runs-on: macos-latest
     steps:
+
+      - name: Set MACOSX_DEPLOYMENT_TARGET
+        run: |
+          echo "MACOSX_DEPLOYMENT_TARGET=13.0" >> $GITHUB_ENV
+
       - name: Test
         run: |
           echo "MACOSX_DEPLOYMENT_TARGET: ${MACOSX_DEPLOYMENT_TARGET}"
