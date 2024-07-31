@@ -5,13 +5,18 @@ jobs:
 
   test:
     name: Test
-    runs-on: macos-latest
+    runs-on: macos-14
     steps:
 
-      - name: Set MACOSX_DEPLOYMENT_TARGET
-        run: |
-          echo "MACOSX_DEPLOYMENT_TARGET=13.0" >> $GITHUB_ENV
+      - name: brew install
+        if: env.runner == 'macos-11' || env.runner == 'macos-12' || env.runner == 'macos-13' || env.runner == 'macos-14'
+        shell: bash
+        run: brew install autoconf automake bison libtool gh rustup-init
 
-      - name: Test
-        run: |
-          echo "MACOSX_DEPLOYMENT_TARGET: ${MACOSX_DEPLOYMENT_TARGET}"
+      - name: Install cargo-c
+        shell: bash
+        run: cargo install cargo-c
+
+      - name: Test cargo-c
+        shell: bash
+        run: cargo-cbuild --version
