@@ -7,4 +7,5 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Test
-        run: echo "MACOSX_DEPLOYMENT_TARGET: ${MACOSX_DEPLOYMENT_TARGET}"
+        run: |
+          echo "MACOSX_DEPLOYMENT_TARGET: ${MACOSX_DEPLOYMENT_TARGET}"
