@@ -1234,10 +1234,17 @@ jobs:
           LD_LIBRARY_PATH: ${{env.prefix_path}}/lib
         run: cargo install cargo-c
 
+      - name: Copy cargo-c dependencies
+        if: env.runner == 'macos-11' || env.runner == 'macos-12' || env.runner == 'macos-13' || env.runner == 'macos-14'
+        shell: bash
+        run: cp ${{env.prefix_path}}/lib/libz.1.dylib /Users/runner/.cargo/bin/
+
       - name: Test cargo-c
         if: env.runner == 'macos-11' || env.runner == 'macos-12' || env.runner == 'macos-13' || env.runner == 'macos-14'
         shell: bash
-        run: /Users/runner/.cargo/bin/cargo-cbuild --version
+        run: |
+          otool -L /Users/runner/.cargo/bin/cargo-cbuild
+          /Users/runner/.cargo/bin/cargo-cbuild --version
 
       - name: Download gst-plugins-rs
         shell: bash
