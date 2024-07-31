@@ -1053,12 +1053,9 @@ jobs:
           LDFLAGS: -L${{env.prefix_path}}/lib -Wl,-rpath,${{env.prefix_path}}/lib
           LIBRARY_PATH: ${{env.prefix_path}}/lib
           LD_LIBRARY_PATH: ${{env.prefix_path}}/lib
-        run: cargo install cargo-c
-
-      - name: Copy cargo-c dependencies
-        if: env.runner == 'macos-11' || env.runner == 'macos-12' || env.runner == 'macos-13' || env.runner == 'macos-14'
-        shell: bash
-        run: cp ${{env.prefix_path}}/lib/libz.1.dylib /Users/runner/.cargo/bin/
+        run: |
+          cargo install cargo-c
+          install_name_tool -change "@rpath/libz.1.dylib" "${{env.prefix_path}}/lib/libz.1.dylib" "/Users/runner/.cargo/bin/cargo-cbuild"
 
       - name: Test cargo-c
         if: env.runner == 'macos-11' || env.runner == 'macos-12' || env.runner == 'macos-13' || env.runner == 'macos-14'
