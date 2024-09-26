@@ -18,6 +18,11 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: sudo apt install -y git jq gh libusb-1.0-0-dev python3-pycryptodome
 
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Create tarball
         run: echo TEST > test.txt
 
