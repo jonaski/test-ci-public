@@ -10,7 +10,7 @@ on:
 jobs:
   test:
     name: TEST
-    if: github.event.pusher.name == 'strawbsboot' && contains(github.event.head_commit.message, 'New translations')
+    if: (!(github.event.pusher.name == 'strawbsbot' && contains(github.event.head_commit.message, 'New translations')))
     runs-on: ubuntu-latest
     steps:
 
