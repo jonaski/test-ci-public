@@ -19,3 +19,6 @@ jobs:
         run: |
           which cat
           ldd $(which cat)
+          ls -la /c/strawberry/c/bin/*cat* || true
+          ls -la /c/strawberry/c/bin/*cat* || true
+          ls -la /c/mingw64/*cat* || true
