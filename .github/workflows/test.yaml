@@ -1050,7 +1050,7 @@ jobs:
           -Dwavenc=enabled
           -Dwavparse=enabled
           -Dxingmux=enabled
-          -Dadaptivedemux2=enabled
+          -Dadaptivedemux2=disabled
           -Ddirectsound=enabled
           -Dflac=enabled
           -Dlame=disabled
