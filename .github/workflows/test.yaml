@@ -150,6 +150,8 @@ jobs:
 
     strategy:
 
+      fail-fast: false
+
       matrix:
        arch: [ x86_64, x86 ]
        buildtype: [ release, debug ]
@@ -1077,19 +1079,19 @@ jobs:
 
 
       - name: Install cargo-c
-        if: matrix.arch == 'x86_64'
+        #if: matrix.arch == 'x86_64'
         shell: cmd
         run: cargo install cargo-c
 
       - name: Download gst-plugins-rs
-        if: matrix.arch == 'x86_64'
+        #if: matrix.arch == 'x86_64'
         shell: bash
         working-directory: build
         #run: git clone --depth 1 --recurse-submodules -b "${{env.gstreamer_plugins_rs_version}}" "https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git"
         run: git clone --depth 1 --recurse-submodules "https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git"
 
       - name: Configure gst-plugins-rs
-        if: matrix.arch == 'x86_64'
+        #if: matrix.arch == 'x86_64'
         shell: cmd
         #env:
           #CL: -MP
@@ -1101,7 +1103,7 @@ jobs:
         run: meson setup --buildtype=${{env.meson_buildtype}} --default-library=shared --prefix=${{env.prefix_path_backslash}} --wrap-mode=nodownload --auto-features=disabled -Dspotify=enabled build
 
       - name: Build gst-plugins-rs
-        if: matrix.arch == 'x86_64'
+        #if: matrix.arch == 'x86_64'
         continue-on-error: true
         shell: cmd
         #env:
@@ -1110,13 +1112,13 @@ jobs:
         run: ninja
 
       - name: Check logs
-        if: matrix.arch == 'x86_64'
-        shell: unix
+        #if: matrix.arch == 'x86_64'
+        shell: bash
         working-directory: build/gst-plugins-rs/build
         run: find . -name 'CMakeConfigureLog.yaml'
 
       - name: Install gst-plugins-rs
-        if: matrix.arch == 'x86_64'
+        #if: matrix.arch == 'x86_64'
         shell: cmd
         working-directory: build/gst-plugins-rs/build
         run: ninja install
