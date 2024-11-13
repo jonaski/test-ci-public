@@ -1164,38 +1164,6 @@ jobs:
         run: ninja install
 
 
-      - name: Download glib-networking
-        shell: bash
-        working-directory: downloads
-        run: curl ${{env.curl_options}} https://download.gnome.org/sources/glib-networking/${{env.glib_networking_version_short}}/glib-networking-${{env.glib_networking_version}}.tar.xz
-
-      - name: Extract glib-networking
-        shell: bash
-        working-directory: build
-        run: tar -xf ../downloads/glib-networking-${{env.glib_networking_version}}.tar.xz
-
-      - name: Configure glib-networking
-        shell: cmd
-        env:
-          CL: -MP
-          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
-          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
-        working-directory: build/glib-networking-${{env.glib_networking_version}}
-        run: meson setup --buildtype=${{env.meson_buildtype}} --default-library=shared --prefix=${{env.prefix_path_backslash}} --pkg-config-path=${{env.prefix_path_backslash}}\lib\pkgconfig --wrap-mode=nodownload -Dgnutls=disabled -Dopenssl=enabled -Dgnome_proxy=disabled -Dlibproxy=disabled build
-
-      - name: Build glib-networking
-        shell: cmd
-        env:
-          CL: -MP
-        working-directory: build/glib-networking-${{env.glib_networking_version}}/build
-        run: ninja
-
-      - name: Install glib-networking
-        shell: cmd
-        working-directory: build/glib-networking-${{env.glib_networking_version}}/build
-        run: ninja install
-
-
       - name: Download freetype
         shell: bash
         working-directory: downloads
