@@ -2408,6 +2408,168 @@ jobs:
         run: ninja install
 
 
+      - name: Download gst-plugins-bad
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-${{env.gstreamer_version}}.tar.xz
+
+      - name: Extract gst-plugins-bad
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/gst-plugins-bad-${{env.gstreamer_version}}.tar.xz
+
+      - name: Patch gst-plugins-bad
+        shell: bash
+        working-directory: build/gst-plugins-bad-${{env.gstreamer_version}}
+        run: patch -p1 < ../../patches/gst-plugins-bad-meson-dependency.patch
+
+      - name: Configure gst-plugins-bad
+        shell: cmd
+        env:
+          CL: -MP
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
+          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
+          CFLAGS: -I${{env.prefix_path_forwardslash}}/include -I${{env.prefix_path_forwardslash}}/include/opus
+        working-directory: build/gst-plugins-bad-${{env.gstreamer_version}}
+        run: >
+          meson setup
+          --buildtype=${{env.meson_buildtype}}
+          --default-library=shared
+          --prefix=${{env.prefix_path_backslash}}
+          --pkg-config-path=${{env.prefix_path_backslash}}\lib\pkgconfig
+          --wrap-mode=nodownload
+          --auto-features=disabled
+          -Dexamples=disabled
+          -Dtools=enabled
+          -Dtests=disabled
+          -Dintrospection=disabled
+          -Dnls=disabled
+          -Dorc=enabled
+          -Dgobject-cast-checks="${{env.gstreamer_checks}}"
+          -Dglib-asserts="${{env.gstreamer_checks}}"
+          -Dglib-checks="${{env.gstreamer_checks}}"
+          -Dextra-checks="${{env.gstreamer_checks}}"
+          -Dgpl=enabled
+          -Daiff=enabled
+          -Dasfmux=enabled
+          -Did3tag=enabled
+          -Dmpegdemux=enabled
+          -Dmpegpsmux=enabled
+          -Dmpegtsdemux=enabled
+          -Dmpegtsmux=enabled
+          -Dremovesilence=enabled
+          -Daes=enabled
+          -Dasio=enabled
+          -Dbluez=enabled
+          -Dbs2b=enabled
+          -Dchromaprint=enabled
+          -Ddash=enabled
+          -Ddirectsound=enabled
+          -Dfaac=enabled
+          -Dfaad=enabled
+          -Dfdkaac=enabled
+          -Dgme=enabled
+          -Dmusepack=enabled
+          -Dopenmpt=enabled
+          -Dopus=enabled
+          -Dwasapi=enabled
+          -Dwasapi2=enabled
+          -Dhls=enabled
+          -Dasio-sdk-path="${{env.prefix_path_backslash}}\share\asiosdk_${{env.asiosdk_version}}"
+          build
+
+      - name: Build gst-plugins-bad
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/gst-plugins-bad-${{env.gstreamer_version}}/build
+        run: ninja
+
+      - name: Install gst-plugins-bad
+        shell: cmd
+        working-directory: build/gst-plugins-bad-${{env.gstreamer_version}}/build
+        run: ninja install
+
+
+      - name: Download gst-plugins-ugly
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://gstreamer.freedesktop.org/src/gst-plugins-ugly/gst-plugins-ugly-${{env.gstreamer_version}}.tar.xz
+
+      - name: Extract gst-plugins-ugly
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/gst-plugins-ugly-${{env.gstreamer_version}}.tar.xz
+
+      - name: Configure gst-plugins-ugly
+        env:
+          CL: -MP
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
+          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
+        working-directory: build/gst-plugins-ugly-${{env.gstreamer_version}}
+        run: >
+          meson setup
+          --buildtype=${{env.meson_buildtype}}
+          --default-library=shared
+          --prefix=${{env.prefix_path_backslash}}
+          --pkg-config-path=${{env.prefix_path_backslash}}\lib\pkgconfig
+          --wrap-mode=nodownload
+          --auto-features=disabled
+          -Dnls=disabled
+          -Dorc=enabled
+          -Dtests=disabled
+          -Dgobject-cast-checks="${{env.gstreamer_checks}}"
+          -Dglib-asserts="${{env.gstreamer_checks}}"
+          -Dglib-checks="${{env.gstreamer_checks}}"
+          -Ddoc=disabled
+          -Dgpl=enabled
+          -Dasfdemux=enabled
+          build
+
+      - name: Build gst-plugins-ugly
+        env:
+          CL: -MP
+        working-directory: build/gst-plugins-ugly-${{env.gstreamer_version}}/build
+        run: ninja
+
+      - name: Install gst-plugins-ugly
+        working-directory: build/gst-plugins-ugly-${{env.gstreamer_version}}/build
+        run: ninja install
+
+
+      - name: Download gst-libav
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://gstreamer.freedesktop.org/src/gst-libav/gst-libav-${{env.gstreamer_version}}.tar.xz
+
+      - name: Extract gst-libav
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/gst-libav-${{env.gstreamer_version}}.tar.xz
+
+      - name: Configure gst-libav
+        shell: cmd
+        env:
+          CL: -MP
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
+          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
+          CFLAGS: -I${{env.prefix_path_forwardslash}}/include
+        working-directory: build/gst-libav-${{env.gstreamer_version}}
+        run: meson setup --buildtype=${{env.meson_buildtype}} --default-library=shared --prefix=${{env.prefix_path_backslash}} --pkg-config-path=${{env.prefix_path_backslash}}\lib\pkgconfig --wrap-mode=nodownload -Dtests=disabled -Ddoc=disabled build
+
+      - name: Build gst-libav
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/gst-libav-${{env.gstreamer_version}}/build
+        run: ninja
+
+      - name: Install gst-libav
+        shell: cmd
+        working-directory: build/gst-libav-${{env.gstreamer_version}}/build
+        run: ninja install
+
+
       - name: Install cargo-c
         if: matrix.arch == 'x86_64'
         shell: cmd
