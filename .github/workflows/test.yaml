@@ -36,7 +36,7 @@ env:
 
   boost_version: '1.86.0'
 
-  libxml2_version: '2.13.4'
+  libxml2_version: '2.13.5'
 
   nghttp2_version: '1.64.0'
 
@@ -444,6 +444,151 @@ jobs:
           cp ${{env.prefix_path_unix}}/lib/zlibd.lib ${{env.prefix_path_unix}}/lib/zd.lib
 
 
+      - name: Download openssl
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://github.com/openssl/openssl/releases/download/openssl-${{env.openssl_version}}/openssl-${{env.openssl_version}}.tar.gz
+
+      - name: Extract openssl
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/openssl-${{env.openssl_version}}.tar.gz
+
+      - name: Configure openssl (release)
+        if: env.buildtype == 'release'
+        shell: cmd
+        env:
+          CL: -MP
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
+          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
+        working-directory: build/openssl-${{env.openssl_version}}
+        run: perl Configure ${{env.openssl_platform}} shared zlib no-capieng no-tests --prefix=${{env.prefix_path_backslash}} --libdir=lib --openssldir=${{env.prefix_path_backslash}}\ssl --release --with-zlib-include=${{env.prefix_path_backslash}}\include --with-zlib-lib=${{env.prefix_path_backslash}}\lib\zlib.lib
+
+      - name: Configure openssl (debug)
+        if: env.buildtype == 'debug'
+        shell: cmd
+        env:
+          CL: -MP
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
+          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
+        working-directory: build/openssl-${{env.openssl_version}}
+        run: perl Configure ${{env.openssl_platform}} shared zlib no-capieng no-tests --prefix=${{env.prefix_path_backslash}} --libdir=lib --openssldir=${{env.prefix_path_backslash}}\ssl --debug --with-zlib-include=${{env.prefix_path_backslash}}\include --with-zlib-lib=${{env.prefix_path_backslash}}\lib\zlibd.lib
+
+      - name: Build openssl
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/openssl-${{env.openssl_version}}
+        run: nmake
+
+      - name: Install openssl
+        shell: cmd
+        working-directory: build/openssl-${{env.openssl_version}}
+        run: nmake install_sw
+
+      - name: Copy openssl libs
+        shell: cmd
+        run: |
+          copy ${{env.prefix_path_backslash}}\lib\libssl.lib ${{env.prefix_path_backslash}}\lib\ssl.lib
+          copy ${{env.prefix_path_backslash}}\lib\libcrypto.lib ${{env.prefix_path_backslash}}\lib\crypto.lib
+
+      - name: Generate openssl pc
+        shell: bash
+        run: |
+          echo "prefix=${{env.prefix_path_forwardslash}}" >>${{env.prefix_path_unix}}/lib/pkgconfig/openssl.pc
+          echo "exec_prefix=\${prefix}" >>${{env.prefix_path_unix}}/lib/pkgconfig/openssl.pc
+          echo "libdir=\${exec_prefix}/lib" >>${{env.prefix_path_unix}}/lib/pkgconfig/openssl.pc
+          echo "includedir=\${prefix}/include" >>${{env.prefix_path_unix}}/lib/pkgconfig/openssl.pc
+          echo "" >>${{env.prefix_path_unix}}/lib/pkgconfig/openssl.pc
+          echo "Name: OpenSSL" >>${{env.prefix_path_unix}}/lib/pkgconfig/openssl.pc
+          echo "Description: Secure Sockets Layer and cryptography libraries and tools" >>${{env.prefix_path_unix}}/lib/pkgconfig/openssl.pc
+          echo "Version: ${{env.openssl_version}}" >>${{env.prefix_path_unix}}/lib/pkgconfig/openssl.pc
+          echo "Requires: libssl libcrypto" >>${{env.prefix_path_unix}}/lib/pkgconfig/openssl.pc
+          echo
+          echo "prefix=${{env.prefix_path_forwardslash}}" >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo "exec_prefix=\${prefix}" >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo "libdir=\${exec_prefix}/lib" >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo "includedir=\${prefix}/include" >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo "enginesdir=\${libdir}/engines-3" >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo "modulesdir=\${libdir}/ossl-modules" >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo "" >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo "Name: OpenSSL-libcrypto" >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo "Description: OpenSSL cryptography library" >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo "Version: ${{env.openssl_version}}" >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo "Libs: -L\${libdir} -lcrypto" >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo "Libs.private: -lz -ldl -pthread " >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo "Cflags: -DOPENSSL_LOAD_CONF -I\${includedir}" >>${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo
+          echo "prefix=${{env.prefix_path_forwardslash}}" >>${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc
+          echo "exec_prefix=\${prefix}" >>${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc
+          echo "libdir=\${exec_prefix}/lib" >>${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc
+          echo "includedir=\${prefix}/include" >>${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc
+          echo "" >>${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc
+          echo "Name: OpenSSL-libssl" >>${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc
+          echo "Description: Secure Sockets Layer and cryptography libraries and tools" >>${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc
+          echo "Version: ${{env.openssl_version}}" >>${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc
+          echo "Requires.private: libcrypto" >>${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc
+          echo "Libs: -L\${libdir} -lssl" >>${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc
+          echo "Cflags: -DOPENSSL_LOAD_CONF -I\${includedir}" >>${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc
+          echo "${{env.prefix_path_unix}}/lib/pkgconfig/openssl.pc:"
+          cat ${{env.prefix_path_unix}}/lib/pkgconfig/openssl.pc
+          echo
+          echo "${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc:"
+          cat ${{env.prefix_path_unix}}/lib/pkgconfig/libcrypto.pc
+          echo
+          echo "${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc:"
+          cat ${{env.prefix_path_unix}}/lib/pkgconfig/libssl.pc
+
+
+      - name: Download GnuTLS
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://github.com/ShiftMediaProject/gnutls/releases/download/${{env.gnutls_version}}/libgnutls_${{env.gnutls_version}}_msvc17.zip
+
+      - name: Create GnuTLS directory
+        shell: cmd
+        working-directory: downloads
+        run: mkdir gnutls
+
+      - name: Extract GnuTLS
+        shell: cmd
+        working-directory: downloads/gnutls
+        run: 7z x "../libgnutls_${{env.gnutls_version}}_msvc17.zip"
+
+      - name: Copy GnuTLS (x86)
+        if: matrix.arch == 'x86'
+        shell: cmd
+        working-directory: downloads/gnutls
+        run: |
+          xcopy /s /y include\* ${{env.prefix_path_backslash}}\include\
+          xcopy /s /y bin\x86\*.* ${{env.prefix_path_backslash}}\bin\
+          xcopy /s /y lib\x86\*.* ${{env.prefix_path_backslash}}\lib\
+
+      - name: Copy GnuTLS (x86_64)
+        if: matrix.arch == 'x86_64'
+        shell: cmd
+        working-directory: downloads/gnutls
+        run: |
+          xcopy /s /y include\* ${{env.prefix_path_backslash}}\include\
+          xcopy /s /y bin\x64\*.* ${{env.prefix_path_backslash}}\bin\
+          xcopy /s /y lib\x64\*.* ${{env.prefix_path_backslash}}\lib\
+
+      - name: Create gnutls.pc
+        shell: bash
+        run: |
+          echo "prefix=${{env.prefix_path_forwardslash}}" >>${{env.prefix_path_unix}}/lib/pkgconfig/gnutls.pc
+          echo "exec_prefix=${{env.prefix_path_forwardslash}}" >>${{env.prefix_path_unix}}/lib/pkgconfig/gnutls.pc
+          echo "libdir=${{env.prefix_path_forwardslash}}/lib" >>${{env.prefix_path_unix}}/lib/pkgconfig/gnutls.pc
+          echo "includedir=${{env.prefix_path_forwardslash}}/include" >>${{env.prefix_path_unix}}/lib/pkgconfig/gnutls.pc
+          echo "" >>${{env.prefix_path_unix}}/lib/pkgconfig/gnutls.pc
+          echo "Name: gnutls" >>${{env.prefix_path_unix}}/lib/pkgconfig/gnutls.pc
+          echo "Description: gnutls" >>${{env.prefix_path_unix}}/lib/pkgconfig/gnutls.pc
+          echo "URL: https://www.gnutls.org/" >>${{env.prefix_path_unix}}/lib/pkgconfig/gnutls.pc
+          echo "Version: ${{env.gnutls_version}}" >>${{env.prefix_path_unix}}/lib/pkgconfig/gnutls.pc
+          echo "Libs: -L\${libdir} -lgnutls" >>${{env.prefix_path_unix}}/lib/pkgconfig/gnutls.pc
+          echo "Cflags: -I\${includedir}" >>${{env.prefix_path_unix}}/lib/pkgconfig/gnutls.pc
+
+
       - name: Download libpng
         shell: bash
         working-directory: downloads
@@ -819,6 +964,31 @@ jobs:
         run: cmake --install .
 
 
+      - name: Download Boost
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://${{env.sourceforge_mirror}}/project/boost/boost/${{env.boost_version}}/boost_${{env.boost_version_underscore}}.tar.bz2
+
+      - name: Extract Boost
+        shell: bash
+        working-directory: build
+        run: tar -xf  ../downloads/boost_${{env.boost_version_underscore}}.tar.bz2
+
+      - name: Configure Boost
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/boost_${{env.boost_version_underscore}}
+        run: bootstrap.bat
+
+      - name: Build and install Boost
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/boost_${{env.boost_version_underscore}}
+        run: b2.exe -a -q -j 4 -d1 --ignore-site-config --stagedir="stage" --layout="tagged" --prefix="${{env.prefix_path_forwardslash}}" --exec-prefix="${{env.prefix_path_forwardslash}}\bin" --libdir="${{env.prefix_path_forwardslash}}\lib" --includedir="${{env.prefix_path_forwardslash}}\include" --with-headers toolset=msvc architecture=x86 link=shared runtime-link=shared threadapi=win32 threading=multi variant=${{env.buildtype}} install
+
+
       - name: Cleanup build directory
         shell: bash
         working-directory: build
@@ -1161,6 +1331,38 @@ jobs:
       - name: Install libsoup
         shell: cmd
         working-directory: build/libsoup-${{env.libsoup_version}}/build
+        run: ninja install
+
+
+      - name: Download glib-networking
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://download.gnome.org/sources/glib-networking/${{env.glib_networking_version_short}}/glib-networking-${{env.glib_networking_version}}.tar.xz
+
+      - name: Extract glib-networking
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/glib-networking-${{env.glib_networking_version}}.tar.xz
+
+      - name: Configure glib-networking
+        shell: cmd
+        env:
+          CL: -MP
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
+          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
+        working-directory: build/glib-networking-${{env.glib_networking_version}}
+        run: meson setup --buildtype=${{env.meson_buildtype}} --default-library=shared --prefix=${{env.prefix_path_backslash}} --pkg-config-path=${{env.prefix_path_backslash}}\lib\pkgconfig --wrap-mode=nodownload -Dgnutls=enabled -Dopenssl=enabled -Dgnome_proxy=disabled -Dlibproxy=disabled build
+
+      - name: Build glib-networking
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/glib-networking-${{env.glib_networking_version}}/build
+        run: ninja
+
+      - name: Install glib-networking
+        shell: cmd
+        working-directory: build/glib-networking-${{env.glib_networking_version}}/build
         run: ninja install
 
 
