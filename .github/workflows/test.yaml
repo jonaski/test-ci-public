@@ -444,6 +444,73 @@ jobs:
           cp ${{env.prefix_path_unix}}/lib/zlibd.lib ${{env.prefix_path_unix}}/lib/zd.lib
 
 
+      - name: Download libpng
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://${{env.sourceforge_mirror}}/project/libpng/libpng16/${{env.libpng_version}}/libpng-${{env.libpng_version}}.tar.xz
+
+      - name: Extract libpng
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/libpng-${{env.libpng_version}}.tar.xz
+
+      - name: Patch libpng
+        shell: bash
+        working-directory: build/libpng-${{env.libpng_version}}
+        run: patch -p1 < ../../patches/libpng-pkgconf.patch
+
+      - name: Configure libpng
+        shell: cmd
+        env:
+          CL: -MP
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
+          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
+        working-directory: build/libpng-${{env.libpng_version}}
+        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "NMake Makefiles" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path_backslash}}"
+
+      - name: Build libpng
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/libpng-${{env.libpng_version}}/build
+        run: cmake --build .
+
+      - name: Install libpng
+        shell: cmd
+        working-directory: build/libpng-${{env.libpng_version}}/build
+        run: cmake --install .
+
+
+      - name: Download libjpeg-turbo
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://${{env.sourceforge_mirror}}/project/libjpeg-turbo/${{env.libjpeg_turbo_version}}/libjpeg-turbo-${{env.libjpeg_turbo_version}}.tar.gz
+
+      - name: Extract libjpeg-turbo
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/libjpeg-turbo-${{env.libjpeg_turbo_version}}.tar.gz
+
+      - name: Configure libjpeg-turbo
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/libjpeg-turbo-${{env.libjpeg_turbo_version}}
+        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G Ninja -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path_backslash}}" -DBUILD_SHARED_LIBS=ON -DENABLE_SHARED=ON
+
+      - name: Build libjpeg-turbo
+        shell: cmd
+        env:
+          CL: -MP
+        working-directory: build/libjpeg-turbo-${{env.libjpeg_turbo_version}}/build
+        run: cmake --build .
+
+      - name: Install libjpeg-turbo
+        shell: cmd
+        working-directory: build/libjpeg-turbo-${{env.libjpeg_turbo_version}}/build
+        run: cmake --install .
+
+
       - name: Download pcre2
         shell: bash
         working-directory: downloads
