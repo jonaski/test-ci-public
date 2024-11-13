@@ -2458,7 +2458,7 @@ jobs:
           -Dmpegtsdemux=enabled
           -Dmpegtsmux=enabled
           -Dremovesilence=enabled
-          -Daes=enabled
+          -Daes=disabled
           -Dasio=enabled
           -Dbluez=enabled
           -Dbs2b=enabled
