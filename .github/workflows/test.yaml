@@ -5,6 +5,7 @@ jobs:
 
   test:
     name: Build Windows MSVC
+    runs-on: ubuntu-latest
 
     steps:
 
