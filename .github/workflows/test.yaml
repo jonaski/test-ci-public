@@ -10,16 +10,15 @@ jobs:
     steps:
 
       - name: Create build directory
-        shell: bash
-        run: mkdir /c/build
+        shell: cmd
+        run: mkdir c:\build
 
-      - name: Test
+      - name: Test 1
         shell: cmd
         working-directory: c:/build
         run: git clone --depth 1 --recurse-submodules "https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git"
 
-
       - name: Test 2
-        shell: bash
-        working-directory: /c/build
-        run: git clone --depth 1 --recurse-submodules "https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git"
+        shell: cmd
+        working-directory: c:/build
+        run: dir
