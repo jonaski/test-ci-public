@@ -4,6 +4,7 @@ about: Create a report to help us improve
 title: ''
 labels: ''
 assignees: ''
+
 ---
 
 - [ ] I have checked the [FAQ](https://wiki.strawberrymusicplayer.org/wiki/FAQ) for answers.
