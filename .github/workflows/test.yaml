@@ -5,20 +5,11 @@ jobs:
 
   test:
     name: Test
-    runs-on: windows-2022
+    runs-on: ubuntu-latest
 
     steps:
 
-      - name: Create build directory
-        shell: cmd
-        run: mkdir c:\build
-
-      - name: Test 1
-        shell: cmd
-        working-directory: c:/build
-        run: git clone --depth 1 --recurse-submodules "https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git"
-
-      - name: Test 2
-        shell: cmd
-        working-directory: c:/build
-        run: dir
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{github.event.pull_request.head.sha}}
