@@ -2,6 +2,11 @@
 
 name: Test
 
+env:
+  curl_options: '-f -O -L --connect-timeout 15 -m 900 --retry 15 --retry-delay 10 --retry-max-time 300 --retry-all-errors'
+  cmake_loglevel: 'DEBUG'
+  make_jobs: '4'
+
 on:
   push:
 
