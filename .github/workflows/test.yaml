@@ -13,7 +13,7 @@ on:
 jobs:
   test:
     name: Test
-    runs-on: macos-14
+    runs-on: windows-latest
     steps:
 
       - name: Set arch
@@ -26,7 +26,17 @@ jobs:
 
       - name: Set prefix path
         shell: bash
-        run: echo "prefix_path=${GITHUB_WORKSPACE}/strawberry_macos_${{env.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+        run: |
+          echo "prefix_path_backslash=c:\strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+          echo "prefix_path_backslash2=c:\\\\strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+          echo "prefix_path_forwardslash=c:/strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+          echo "prefix_path_unix=/c/strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+
+      - name: Set cmake and meson buildtype
+        shell: bash
+        run: |
+          echo "cmake_buildtype=$(echo ${{env.buildtype}} | sed 's/.*/\u&/')" >> $GITHUB_ENV
+          echo "meson_buildtype=${{env.buildtype}}" >> $GITHUB_ENV
 
       - name: Create directories
         shell: bash
@@ -50,22 +60,22 @@ jobs:
         run: git clone --depth 1 --recurse-submodules https://github.com/Tencent/rapidjson
 
       - name: Configure rapidjson
-        shell: bash
+        shell: cmd
         env:
-          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path}}/bin/pkgconf
-          PKG_CONFIG_PATH: ${{env.prefix_path}}/lib/pkgconfig
-          CFLAGS: -I${{env.prefix_path}}/include
-          CXXFLAGS: -I${{env.prefix_path}}/include
-          LDFLAGS: -L${{env.prefix_path}}/lib -Wl,-rpath,${{env.prefix_path}}/lib
+          CL: -MP
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
+          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
         working-directory: build/rapidjson
-        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path}}" -DBUILD_TESTING=OFF -DRAPIDJSON_BUILD_TESTS=OFF -DRAPIDJSON_BUILD_EXAMPLES=OFF -DRAPIDJSON_BUILD_DOC=OFF
+        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "NMake Makefiles" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path_backslash}}" -DBUILD_TESTING=OFF -DRAPIDJSON_BUILD_TESTS=OFF -DRAPIDJSON_BUILD_EXAMPLES=OFF -DRAPIDJSON_BUILD_DOC=OFF
 
       - name: Build rapidjson
-        shell: bash
+        shell: cmd
+        env:
+          CL: -MP
         working-directory: build/rapidjson/build
         run: cmake --build .
 
       - name: Install rapidjson
-        shell: bash
+        shell: cmd
         working-directory: build/rapidjson/build
         run: cmake --install .
