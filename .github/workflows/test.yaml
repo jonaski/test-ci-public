@@ -11,15 +11,39 @@ jobs:
     runs-on: macos-14
     steps:
 
-      # - uses: maxim-lobanov/setup-xcode@v1
-      #   with:
-      #     xcode-version: 14.3.1
+      - name: Set arch
+        shell: bash
+        run: echo "arch=$(uname -m)" >> $GITHUB_ENV
 
-      - name: Test
-        run: ls -la /Library/Developer/CommandLineTools/SDKs
+      - name: Set buildtype
+        shell: bash
+        run: echo "buildtype=debug" >> $GITHUB_ENV
 
-      - name: Get SDKs
-        run: xcodebuild -showsdks
+      - name: Set prefix path
+        shell: bash
+        run: echo "prefix_path=${GITHUB_WORKSPACE}/strawberry_macos_${{env.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
 
-      - name: ls
-        run: ls -la /Applications/
+      - name: Download rapidjson
+        shell: bash
+        working-directory: build
+        run: git clone --depth 1 --recurse-submodules https://github.com/Tencent/rapidjson
+
+      - name: Configure rapidjson
+        shell: bash
+        env:
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path}}/bin/pkgconf
+          PKG_CONFIG_PATH: ${{env.prefix_path}}/lib/pkgconfig
+          CXXFLAGS: -Wno-shadow -Wno-zero-as-null-pointer-constant -Wno-deprecated-declarations -Wno-suggest-override -Wno-suggest-destructor-override -Wno-deprecated-copy-with-user-provided-copy -Wno-sign-conversion -I${{env.prefix_path}}/include
+          LDFLAGS: -L${{env.prefix_path}}/lib -Wl,-rpath,${{env.prefix_path}}/lib
+        working-directory: build/rapidjson
+        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path}}" -DBUILD_TESTING=OFF
+
+      - name: Build rapidjson
+        shell: bash
+        working-directory: build/rapidjson/build
+        run: cmake --build .
+
+      - name: Install rapidjson
+        shell: bash
+        working-directory: build/rapidjson/build
+        run: cmake --install .
