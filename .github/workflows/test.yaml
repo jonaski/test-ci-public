@@ -23,6 +23,22 @@ jobs:
         shell: bash
         run: echo "prefix_path=${GITHUB_WORKSPACE}/strawberry_macos_${{env.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
 
+      - name: Create directories
+        shell: bash
+        run: mkdir -p ${{env.prefix_path}}/{bin,lib,include}
+
+      - name: Update PATH
+        shell: bash
+        run: echo "${{env.prefix_path}}/bin" >> $GITHUB_PATH
+
+      - name: Create downloads directory
+        shell: bash
+        run: mkdir downloads
+
+      - name: Create build directory
+        shell: bash
+        run: mkdir build
+
       - name: Download rapidjson
         shell: bash
         working-directory: build
