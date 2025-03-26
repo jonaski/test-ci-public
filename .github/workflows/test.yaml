@@ -46,6 +46,13 @@ jobs:
         shell: bash
         run: echo "${{env.prefix_path}}/bin" >> $GITHUB_PATH
 
+      - name: Setup MSVC Environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{matrix.arch}}
+          sdk: 10.0.20348.0
+          vsversion: 2022
+
       - name: Create downloads directory
         shell: bash
         run: mkdir downloads
