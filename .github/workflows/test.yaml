@@ -1,88 +1,23 @@
 ---
 
 name: Test
-
-env:
-  curl_options: '-f -O -L --connect-timeout 15 -m 900 --retry 15 --retry-delay 10 --retry-max-time 300 --retry-all-errors'
-  cmake_loglevel: 'DEBUG'
-  make_jobs: '4'
-
 on:
   push:
-
 jobs:
-  test:
-    name: Test
-    runs-on: windows-latest
+  build-openbsd:
+    name: Build OpenBSD
+    runs-on: ubuntu-latest
     steps:
-
-      - name: Set arch
-        shell: bash
-        run: echo "arch=$(uname -m)" >> $GITHUB_ENV
-
-      - name: Set buildtype
-        shell: bash
-        run: echo "buildtype=debug" >> $GITHUB_ENV
-
-      - name: Set prefix path
-        shell: bash
-        run: |
-          echo "prefix_path_backslash=c:\strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
-          echo "prefix_path_backslash2=c:\\\\strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
-          echo "prefix_path_forwardslash=c:/strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
-          echo "prefix_path_unix=/c/strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
-
-      - name: Set cmake and meson buildtype
-        shell: bash
-        run: |
-          echo "cmake_buildtype=$(echo ${{env.buildtype}} | sed 's/.*/\u&/')" >> $GITHUB_ENV
-          echo "meson_buildtype=${{env.buildtype}}" >> $GITHUB_ENV
-
-      - name: Create directories
-        shell: bash
-        run: mkdir -p ${{env.prefix_path}}/{bin,lib,include}
-
-      - name: Update PATH
-        shell: bash
-        run: echo "${{env.prefix_path}}/bin" >> $GITHUB_PATH
-
-      - name: Setup MSVC Environment
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x86_64
-          sdk: 10.0.20348.0
-          vsversion: 2022
-
-      - name: Create downloads directory
-        shell: bash
-        run: mkdir downloads
-
-      - name: Create build directory
-        shell: bash
-        run: mkdir build
-
-      - name: Download rapidjson
-        shell: bash
-        working-directory: build
-        run: git clone --depth 1 --recurse-submodules https://github.com/Tencent/rapidjson
-
-      - name: Configure rapidjson
-        shell: cmd
-        env:
-          CL: -MP
-          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
-          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
-        working-directory: build/rapidjson
-        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "NMake Makefiles" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path_backslash}}"
-
-      - name: Build rapidjson
-        shell: cmd
-        env:
-          CL: -MP
-        working-directory: build/rapidjson/build
-        run: cmake --build .
-
-      - name: Install rapidjson
-        shell: cmd
-        working-directory: build/rapidjson/build
-        run: cmake --install .
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: recursive
+    - name: Build OpenBSD
+      id: build-openbsd
+      uses: vmactions/openbsd-vm@v1.1.6
+      with:
+        usesh: true
+        mem: 4096
+        prepare: pkg_add rapidjson
+        run: find /usr -iname '*RapidJSON*'
