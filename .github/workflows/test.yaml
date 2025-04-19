@@ -265,6 +265,7 @@ jobs:
           echo "boost_architecture=arm" >> $GITHUB_ENV
           echo "glib_networking_gnutls=disabled" >> $GITHUB_ENV
           echo "gst_twolame=disabled" >> $GITHUB_ENV
+          echo "gst_faac=disabled" >> $GITHUB_ENV
 
       - name: Set extra version variables
         shell: bash
@@ -328,51 +329,6 @@ jobs:
       - name: Create build directory
         shell: cmd
         run: mkdir build
-
-
-
-      - name: Download fftw
-        if: matrix.arch == 'arm64'
-        shell: bash
-        working-directory: downloads
-        run: curl ${{env.curl_options}} https://www.fftw.org/fftw-${{env.fftw_version}}.tar.gz
-
-      - name: Extract fftw
-        if: matrix.arch == 'arm64'
-        shell: bash
-        working-directory: build
-        run: tar -xf ../downloads/fftw-${{env.fftw_version}}.tar.gz
-
-      - name: Extract fftw
-        if: matrix.arch == 'arm64'
-        shell: bash
-        working-directory: build/fftw-${{env.fftw_version}}
-        run: patch -p1 < ../../patches/fftw-fixes.patch
-
-      - name: Configure fftw
-        if: matrix.arch == 'arm64'
-        shell: cmd
-        env:
-          CL: -MP
-          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path_backslash}}\bin\pkgconf.exe
-          PKG_CONFIG_PATH: ${{env.prefix_path_backslash}}\lib\pkgconfig
-        working-directory: build/fftw-${{env.fftw_version}}
-        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "NMake Makefiles" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX=${{env.prefix_path_backslash}} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTS=OFF -DENABLE_AVX=ON -DENABLE_AVX2=OFF -DENABLE_SSE=ON -DENABLE_SSE2=ON -DENABLE_THREADS=ON -DWITH_COMBINED_THREADS=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-
-      - name: Build fftw
-        if: matrix.arch == 'arm64'
-        shell: cmd
-        env:
-          CL: -MP
-        working-directory: build/fftw-${{env.fftw_version}}/build
-        run: cmake --build .
-
-      - name: Install fftw
-        if: matrix.arch == 'arm64'
-        shell: cmd
-        working-directory: build/fftw-${{env.fftw_version}}/build
-        run: cmake --install .
-
 
 
       - id: set-nasm-filename
@@ -2400,21 +2356,25 @@ jobs:
 
 
       - name: Download libebur128
+        if: matrix.arch != 'arm64'
         shell: bash
         working-directory: downloads
         run: curl ${{env.curl_options}} https://github.com/jiixyj/libebur128/archive/refs/tags/v${{env.libebur128_version}}/libebur128-${{env.libebur128_version}}.tar.gz
 
       - name: Extract libebur128
+        if: matrix.arch != 'arm64'
         shell: bash
         working-directory: build
         run: tar -xf ../downloads/libebur128-${{env.libebur128_version}}.tar.gz
 
       - name: Patch libebur128
+        if: matrix.arch != 'arm64'
         shell: bash
         working-directory: build/libebur128-${{env.libebur128_version}}
         run: sed -i "/^Libs.private.*/d" ebur128/libebur128.pc.cmake
 
       - name: Configure libebur128
+        if: matrix.arch != 'arm64'
         shell: cmd
         env:
           CL: -MP
@@ -2424,6 +2384,7 @@ jobs:
         run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "NMake Makefiles" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX=${{env.prefix_path_backslash}} -DBUILD_SHARED_LIBS=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build libebur128
+        if: matrix.arch != 'arm64'
         shell: cmd
         env:
           CL: -MP
@@ -2431,6 +2392,7 @@ jobs:
         run: cmake --build .
 
       - name: Install libebur128
+        if: matrix.arch != 'arm64'
         shell: cmd
         working-directory: build/libebur128-${{env.libebur128_version}}/build
         run: cmake --install .
