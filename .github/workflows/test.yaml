@@ -446,6 +446,12 @@ jobs:
         working-directory: build/libebur128-${{env.libebur128_version}}
         run: sed -i "/^Libs.private.*/d" ebur128/libebur128.pc.cmake
 
+      - name: Patch libebur128 (arm64)
+        if: env.arch == 'arm64'
+        shell: bash
+        working-directory: build/libebur128-${{env.libebur128_version}}
+        run: sed -i "/^#warning .*/d" ebur128/ebur128.c
+
       - name: Configure libebur128
         shell: cmd
         env:
