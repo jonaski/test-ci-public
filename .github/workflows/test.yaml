@@ -13,4 +13,10 @@ jobs:
     steps:
       - name: ls
         shell: bash
-        run: ls -la /
+        run: |
+          ls -la /
+          gcc -v
+
+      - name: dir
+        shell: cmd
+        run: dir c:\
