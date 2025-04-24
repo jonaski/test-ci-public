@@ -12,4 +12,5 @@ jobs:
     runs-on: windows-11-arm
     steps:
       - name: ls
+        shell: bash
         run: ls -la /
