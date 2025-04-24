@@ -62,7 +62,9 @@ jobs:
       - name: Configure m4
         shell: bash
         working-directory: build/m4-${{env.m4_version}}
-        run: ./configure --prefix="${{env.prefix_path}}" --with-syscmd-shell=/usr/bin/sh --disable-nls
+        run: |
+          autoreconf -vfi
+          ./configure -C --prefix="${{env.prefix_path}}" --with-syscmd-shell=/usr/bin/sh --disable-nls
 
       - name: Build m4
         shell: bash
