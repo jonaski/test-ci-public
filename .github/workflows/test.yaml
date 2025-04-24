@@ -8,7 +8,9 @@ on:
 
 env:
   curl_options: '-f -O -L --connect-timeout 15 -m 900 --retry 15 --retry-delay 10 --retry-max-time 300 --retry-all-errors'
+  make_jobs: '4'
   gmp_version: '6.3.0'
+  m4_version: '1.4.19'
 
 jobs:
   build:
@@ -45,6 +47,33 @@ jobs:
       - name: Create build directory
         shell: bash
         run: mkdir build
+
+
+      - name: Download m4
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://ftp.gnu.org/gnu/m4/m4-${{env.m4_version}}.tar.gz
+
+      - name: Extract m4
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/m4-${{env.m4_version}}.tar.gz
+
+      - name: Configure m4
+        shell: bash
+        working-directory: build/m4-${{env.m4_version}}
+        run: ./configure --prefix="${{env.prefix_path}}"
+
+      - name: Build m4
+        shell: bash
+        working-directory: build/m4-${{env.m4_version}}
+        run: make -j ${{env.make_jobs}}
+
+      - name: Install m4
+        shell: bash
+        working-directory: build/m4-${{env.m4_version}}
+        run: make install
+
 
       - name: Download gmp
         shell: bash
