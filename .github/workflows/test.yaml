@@ -19,6 +19,7 @@ jobs:
         shell: bash
         run: |
           ls -la /
+          uname -a
           gcc -v
 
       - name: dir
