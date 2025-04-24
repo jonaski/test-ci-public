@@ -6,6 +6,9 @@ on:
   release:
     types: [published]
 
+env:
+  gmp_version: '6.3.0'
+
 jobs:
   build:
     name: Build
@@ -20,3 +23,49 @@ jobs:
       - name: dir
         shell: cmd
         run: dir c:\
+
+      - name: Set prefix path
+        shell: bash
+        run: echo "prefix_path=/c/strawberry_msvc" >> $GITHUB_ENV
+
+      - name: Create prefix path
+        shell: bash
+        run: sudo mkdir -p ${{env.prefix_path}}
+
+      - name: Create directories
+        shell: bash
+        run: mkdir -p ${{env.prefix_path}}/{bin,lib,include}
+
+      - name: Create downloads directory
+        shell: bash
+        run: mkdir downloads
+
+      - name: Create build directory
+        shell: bash
+        run: mkdir build
+
+      - name: Download gmp
+        shell: bash
+        working-directory: downloads
+        #run: curl ${{env.curl_options}} https://gmplib.org/download/gmp/gmp-${{env.gmp_version}}.tar.xz
+        run: curl ${{env.curl_options}} https://files.jkvinge.net/packages/strawberry-dependencies/gmp-${{env.gmp_version}}.tar.xz
+
+      - name: Extract gmp
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/gmp-${{env.gmp_version}}.tar.xz
+
+      - name: Configure gmp
+        shell: bash
+        working-directory: build/gmp-${{env.gmp_version}}
+        run: ./configure --prefix="${{env.prefix_path}}" --disable-static --enable-shared -enable-cxx --without-readline
+
+      - name: Build gmp
+        shell: bash
+        working-directory: build/gmp-${{env.gmp_version}}
+        run: make -j ${{env.make_jobs}}
+
+      - name: Install gmp
+        shell: bash
+        working-directory: build/gmp-${{env.gmp_version}}
+        run: make install
