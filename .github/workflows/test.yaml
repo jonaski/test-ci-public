@@ -30,7 +30,7 @@ jobs:
 
       - name: Create prefix path
         shell: bash
-        run: sudo mkdir -p ${{env.prefix_path}}
+        run: mkdir -p ${{env.prefix_path}}
 
       - name: Create directories
         shell: bash
