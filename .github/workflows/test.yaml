@@ -66,6 +66,16 @@ jobs:
           #autoreconf -vfi
           ./configure --host="$(gcc -dumpmachine | sed 's|-msys$|-cygwin|')" --prefix=${{env.prefix_path}} --with-syscmd-shell=/usr/bin/sh --disable-nls --sysconfdir=/etc --localstatedir=/var --enable-threads CC=gcc
 
+      - name: file Makefile
+        shell: bash
+        working-directory: build/m4-${{env.m4_version}}
+        run: file Makefile
+
+      - name: file Makefile
+        shell: bash
+        working-directory: build/m4-${{env.m4_version}}
+        run: dos2unix Makefile
+
       - name: Build m4
         shell: bash
         working-directory: build/m4-${{env.m4_version}}
