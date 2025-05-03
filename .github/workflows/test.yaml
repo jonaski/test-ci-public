@@ -69,6 +69,7 @@ jobs:
 
       - name: Configure nettle
         shell: bash
+        working-directory: build/nettle-${{env.nettle_version}}
         run: ./configure --prefix="${{env.prefix_path}}" --disable-static --enable-shared --disable-documentation
 
       - name: Build nettle
