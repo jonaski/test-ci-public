@@ -11,6 +11,7 @@ env:
   make_jobs: '4'
   gmp_version: '6.3.0'
   m4_version: '1.4.19'
+  gnutls_version: '3.7.11'
 
 jobs:
   build:
@@ -18,9 +19,10 @@ jobs:
     runs-on: windows-11-arm
     steps:
     
-      - name: Install
+      - name: Set extra version variables
         shell: bash
-        run: pacman -Sy m4
+        run: |
+          echo "gnutls_version_short=$(echo ${{env.gnutls_version}} | cut -d '.' -f 1-2)" >> $GITHUB_ENV
     
       - name: ls
         shell: bash
@@ -52,6 +54,32 @@ jobs:
       - name: Create build directory
         shell: bash
         run: mkdir build
+
+
+      - name: Download GnuTLS
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://www.gnupg.org/ftp/gcrypt/gnutls/v${{env.gnutls_version_short}}/gnutls-${{env.gnutls_version}}.tar.xz
+
+      - name: Extract GnuTLS
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/gnutls-${{env.gnutls_version}}.tar.xz
+
+      - name: Configure GnuTLS
+        shell: bash
+        working-directory: build/gnutls-${{env.gnutls_version}}
+        run: ./configure --prefix="${{env.prefix_path}}" --disable-static --enable-shared --disable-dependency-tracking --disable-silent-rules --disable-nls --enable-rpath --disable-doc --disable-tests --without-p11-kit
+
+      - name: Build GnuTLS
+        shell: bash
+        working-directory: build/gnutls-${{env.gnutls_version}}
+        run: make -j ${{env.make_jobs}}
+
+      - name: Install GnuTLS
+        shell: bash
+        working-directory: build/gnutls-${{env.gnutls_version}}
+        run: make install
 
 
       - name: Download m4
