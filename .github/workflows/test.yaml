@@ -69,7 +69,7 @@ jobs:
       - name: file Makefile
         shell: bash
         working-directory: build/m4-${{env.m4_version}}
-        run: sed -n '213,213'p
+        run: sed -n '213,213'p Makefile
 
       - name: file Makefile
         shell: bash
