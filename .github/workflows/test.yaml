@@ -11,6 +11,7 @@ env:
   make_jobs: '4'
   gmp_version: '6.3.0'
   m4_version: '1.4.19'
+  nettle_version: '3.10.1'
   gnutls_version: '3.7.11'
 
 jobs:
@@ -54,6 +55,31 @@ jobs:
       - name: Create build directory
         shell: bash
         run: mkdir build
+
+
+      - name: Download nettle
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://www.lysator.liu.se/~nisse/archive/nettle-${{env.nettle_version}}.tar.gz
+
+      - name: Extract nettle
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/nettle-${{env.nettle_version}}.tar.gz
+
+      - name: Configure nettle
+        shell: bash
+        run: ./configure --prefix="${{env.prefix_path}}" --disable-static --enable-shared --disable-documentation
+
+      - name: Build nettle
+        shell: bash
+        working-directory: build/nettle-${{env.nettle_version}}
+        run: make -j ${{env.make_jobs}}
+
+      - name: Install nettle
+        shell: bash
+        working-directory: build/nettle-${{env.nettle_version}}
+        run: make install
 
 
       - name: Download GnuTLS
