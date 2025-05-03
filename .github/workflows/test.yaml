@@ -23,9 +23,9 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
           update: true
-        install: >-
-          git
-          m4
+          install: >-
+            git
+            m4
     
       - name: Set extra version variables
         shell: bash
