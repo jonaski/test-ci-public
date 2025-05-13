@@ -59,7 +59,7 @@ jobs:
         shell: bash
         run: mkdir downloads
 
-      - name: Create build directory
+      - name: Create build directory...
         shell: bash
         run: mkdir build
 
