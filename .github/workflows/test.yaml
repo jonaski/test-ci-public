@@ -13,6 +13,10 @@ jobs:
     runs-on: windows-latest
     steps:
 
+      - name: Set buildtype
+        shell: bash
+        run: echo "buildtype=test | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Dir
         shell: bash
         run: ls -1 /c/hostedtoolcache/windows/Python
