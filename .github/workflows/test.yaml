@@ -13,6 +13,15 @@ jobs:
     runs-on: windows-latest
     steps:
 
+      - name: Dir
+        shell: cmd
+        run: dir C:\hostedtoolcache\windows\Python
+
+      - name: Cleanup PATH
+        uses: egor-tensin/cleanup-path@v4
+        with:
+          dirs: ${{env.prefix_path_backslash}}\bin;C:\Windows;C:\Windows\system32;C:\Program Files\Git\bin;C:\Program Files\CMake\bin;C:\Program Files\GitHub CLI;C:\ProgramData\Chocolatey\bin;C:\Strawberry\perl\bin;C:\hostedtoolcache\windows\Python\3.9.13\x64;C:\hostedtoolcache\windows\Python\3.9.13\x64\Scripts;C:\Users\runneradmin\.cargo\bin
+
       - name: Setup Python
         uses: actions/setup-python@v5
 
