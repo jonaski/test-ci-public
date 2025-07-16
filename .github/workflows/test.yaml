@@ -14,11 +14,11 @@ jobs:
     steps:
 
       - name: Dir
-        shell: unix
+        shell: bash
         run: ls -1 /c/hostedtoolcache/windows/Python
 
       - name: Set python version
-        shell: unix
+        shell: bash
         run: echo "python_version=$(ls -1 /c/hostedtoolcache/windows/Python | sort -V | tail)" >> $GITHUB_ENV
 
       - name: Cleanup PATH
