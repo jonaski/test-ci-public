@@ -23,6 +23,10 @@ jobs:
 
       - name: Set python version
         shell: bash
+        run: echo "python_version=$(ls -1 /c/hostedtoolcache/windows/Python | sort -V | tail)"
+
+      - name: Set python version
+        shell: bash
         run: echo "python_version=$(ls -1 /c/hostedtoolcache/windows/Python | sort -V | tail)" >> $GITHUB_ENV
 
       - name: Cleanup PATH
