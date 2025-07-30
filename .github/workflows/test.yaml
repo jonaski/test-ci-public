@@ -194,9 +194,10 @@ jobs:
         run: dir "C:\Program Files (x86)\Windows Kits\10\include"
 
       - name: Dir
-        if: matrix.arch != 'x86'
         shell: cmd
-        run: dir "C:\Program Files\"
+        run: |
+          dir "C:\Program Files\Microsoft Visual Studio"
+          dir "C:\Program Files\Microsoft Visual Studio 14.0"
 
       - name: Set buildtype
         shell: bash
@@ -325,12 +326,20 @@ jobs:
 
 
       - name: Setup MSVC Environment
+        if: matrix.arch != 'arm64'
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{matrix.arch}}
           sdk: 10.0.22000.0
           vsversion: 2022
 
+      - name: Setup MSVC Environment
+        if: matrix.arch == 'arm64'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{matrix.arch}}
+          sdk: 10.0.26100.0
+          vsversion: 2022
 
       - name: Checkout
         uses: actions/checkout@v4
