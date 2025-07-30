@@ -219,6 +219,16 @@ jobs:
           echo "prefix_path_forwardslash=c:/strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
           echo "prefix_path_unix=/c/strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
 
+      - name: Set SDK version
+        if: matrix.arch != 'arm64'
+        shell: bash
+        run: echo "sdk_version=10.0.22000.0" >> $GITHUB_ENV
+
+      - name: Set SDK version
+        if: matrix.arch == 'arm64'
+        shell: bash
+        run: echo "sdk_version=10.0.26100.0" >> $GITHUB_ENV
+
       - name: Set python version
         shell: bash
         run: echo "python_version="$(ls -1 /c/hostedtoolcache/windows/Python | sort -V | tail -1)"" >> $GITHUB_ENV
@@ -328,19 +338,10 @@ jobs:
 
 
       - name: Setup MSVC Environment
-        if: matrix.arch != 'arm64'
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{matrix.arch}}
-          sdk: 10.0.22000.0
-          vsversion: 2022
-
-      - name: Setup MSVC Environment
-        if: matrix.arch == 'arm64'
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: ${{matrix.arch}}
-          sdk: 10.0.26100.0
+          sdk: ${{env.sdk_version}}
           vsversion: 2022
 
       - name: Checkout
@@ -466,13 +467,17 @@ jobs:
         working-directory: build
         run: 7z x ../downloads/icu4c-${{env.icu4c_version_underscore}}-src.zip
 
+      - name: Set windows SDK version for icu
+        if: matrix.arch == 'arm64'
+        shell: bash
+        working-directory: build/icu/source
+        run: sed -i 's/10.0.22621.0/${{env.sdk_version}}/g' allinone/Build.Windows.ProjectConfiguration.props
+
       - name: Patch icu
         if: matrix.arch == 'arm64'
         shell: bash
         working-directory: build/icu/source
-        run: |
-          sed -i 's/bin64/binARM64/g' extra/uconv/makedata.mak
-          sed -i 's/10.0.22621.0/10.0.26100.0/g' allinone/Build.Windows.ProjectConfiguration.props
+        run: sed -i 's/bin64/binARM64/g' extra/uconv/makedata.mak
 
       - name: Build icu
         shell: cmd
