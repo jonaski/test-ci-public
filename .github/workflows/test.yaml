@@ -340,7 +340,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{matrix.arch}}
-          #sdk: 10.0.26100.0
+          sdk: 10.0.26100.0
           vsversion: 2022
 
       - name: Checkout
@@ -470,7 +470,9 @@ jobs:
         if: matrix.arch == 'arm64'
         shell: bash
         working-directory: build/icu/source
-        run: sed -i 's/bin64/binARM64/g' extra/uconv/makedata.mak
+        run: |
+          sed -i 's/bin64/binARM64/g' extra/uconv/makedata.mak
+          sed -i 's/10.0.22621.0/10.0.26100.0/g' allinone/Build.Windows.ProjectConfiguration.props
 
       - name: Build icu
         shell: cmd
