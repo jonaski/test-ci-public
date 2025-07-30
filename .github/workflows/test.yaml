@@ -197,7 +197,7 @@ jobs:
         shell: cmd
         run: |
           dir "C:\"
-          dir "C:\Program Files\"
+          dir "C:\Program Files\Microsoft SDKs"
           dir "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\SDK\Bootstrapper"
           dir "C:\Program Files\Microsoft Visual Studio 14.0\Common7\IDE"
 
