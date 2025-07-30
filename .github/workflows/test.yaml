@@ -196,7 +196,7 @@ jobs:
       - name: Dir
         if: matrix.arch != 'x86'
         shell: cmd
-        run: dir "C:\Program Files\Windows Kits\"
+        run: dir "C:\Program Files\"
 
       - name: Set buildtype
         shell: bash
