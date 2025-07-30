@@ -340,7 +340,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{matrix.arch}}
-          sdk: 10.0.26100.0
+          #sdk: 10.0.26100.0
           vsversion: 2022
 
       - name: Checkout
