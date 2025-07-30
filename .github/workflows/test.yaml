@@ -298,13 +298,13 @@ jobs:
         shell: bash
         run: cp /c/strawberry/c/bin/{patch.exe,strip.exe,strings.exe,objdump.exe} ${{env.prefix_path_unix}}/bin
 
-      - name: Delete conflicting libraries
-        shell: bash
-        run: rm -rf /c/{msys64,mingw32,mingw64} /c/strawberry/c "/c/program files/OpenSSL"
+      # - name: Delete conflicting libraries
+      #   shell: bash
+      #   run: rm -rf /c/{msys64,mingw32,mingw64} /c/strawberry/c "/c/program files/OpenSSL"
 
-      - name: Delete conflicting icu
-        shell: bash
-        run: find "/c/program files (x86)/windows kits/" -type f \( -iname 'icu*.lib' -o -iname 'icu*.h' \) -print -delete
+      # - name: Delete conflicting icu
+      #   shell: bash
+      #   run: find "/c/program files (x86)/windows kits/" -type f \( -iname 'icu*.lib' -o -iname 'icu*.h' \) -print -delete
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -335,70 +335,70 @@ jobs:
         run: mkdir build
 
 
-      - id: set-nasm-filename
-        name: Set nasm filename
-        shell: bash
-        run: echo "nasm-filename=nasm-${{env.nasm_version}}-installer-$(test "${{matrix.arch}}" = "arm64" && echo "x64" || echo "${{env.arch_short}}").exe" >> $GITHUB_OUTPUT
-
-      - name: Download nasm
-        shell: bash
-        working-directory: downloads
-        run: curl ${{env.curl_options}} https://files.jkvinge.net/install/${{steps.set-nasm-filename.outputs.nasm-filename}}
-
-      - name: Create nasm directory
-        shell: cmd
-        run: mkdir c:\nasm
-
-      - name: Extract nasm
-        shell: cmd
-        working-directory: c:/nasm
-        run: 7z x "${{github.workspace}}\downloads\${{steps.set-nasm-filename.outputs.nasm-filename}}"
-
-      - name: Copy nasm
-        shell: bash
-        run: cp /c/nasm/nasm.exe /c/nasm/nasmw.exe
-
-      - name: Add nasm to PATH
-        shell: pwsh
-        run: echo "c:\nasm" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-
-      - name: Download win_flex_bison
-        shell: bash
-        working-directory: downloads
-        run: curl ${{env.curl_options}} https://github.com/lexxmark/winflexbison/releases/download/v${{env.win_flex_bison_version}}/win_flex_bison-${{env.win_flex_bison_version}}.zip
-
-      - name: Create win_flex_bison directory
-        shell: cmd
-        run: mkdir c:\win_flex_bison
-
-      - name: Extract win_flex_bison
-        shell: cmd
-        working-directory: c:\win_flex_bison
-        run: 7z x "${{github.workspace}}\downloads\win_flex_bison-${{env.win_flex_bison_version}}.zip"
-
-      - name: Add win_flex_bison to PATH
-        shell: pwsh
-        run: echo "c:\win_flex_bison" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      # - id: set-nasm-filename
+      #   name: Set nasm filename
+      #   shell: bash
+      #   run: echo "nasm-filename=nasm-${{env.nasm_version}}-installer-$(test "${{matrix.arch}}" = "arm64" && echo "x64" || echo "${{env.arch_short}}").exe" >> $GITHUB_OUTPUT
+      #
+      # - name: Download nasm
+      #   shell: bash
+      #   working-directory: downloads
+      #   run: curl ${{env.curl_options}} https://files.jkvinge.net/install/${{steps.set-nasm-filename.outputs.nasm-filename}}
+      #
+      # - name: Create nasm directory
+      #   shell: cmd
+      #   run: mkdir c:\nasm
+      #
+      # - name: Extract nasm
+      #   shell: cmd
+      #   working-directory: c:/nasm
+      #   run: 7z x "${{github.workspace}}\downloads\${{steps.set-nasm-filename.outputs.nasm-filename}}"
+      #
+      # - name: Copy nasm
+      #   shell: bash
+      #   run: cp /c/nasm/nasm.exe /c/nasm/nasmw.exe
+      #
+      # - name: Add nasm to PATH
+      #   shell: pwsh
+      #   run: echo "c:\nasm" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
 
-      - name: Download gettext
-        shell: bash
-        working-directory: downloads
-        run: curl ${{env.curl_options}} https://github.com/mlocati/gettext-iconv-windows/releases/download/v${{env.gettext_only_version}}-v${{env.gettext_iconv_version}}/gettext${{env.gettext_only_version}}-iconv${{env.gettext_iconv_version}}-static-${{env.arch_bits}}.zip
-
-      - name: Extract gettext
-        shell: cmd
-        working-directory: build
-        run: |
-          mkdir gettext
-          cd gettext
-          7z x "..\..\downloads\gettext${{env.gettext_only_version}}-iconv${{env.gettext_iconv_version}}-static-${{env.arch_bits}}.zip"
-
-      - name: Install gettext
-        shell: bash
-        working-directory: build/gettext
-        run: cp -v bin/*.exe ${{env.prefix_path_forwardslash}}/bin/
+      # - name: Download win_flex_bison
+      #   shell: bash
+      #   working-directory: downloads
+      #   run: curl ${{env.curl_options}} https://github.com/lexxmark/winflexbison/releases/download/v${{env.win_flex_bison_version}}/win_flex_bison-${{env.win_flex_bison_version}}.zip
+      #
+      # - name: Create win_flex_bison directory
+      #   shell: cmd
+      #   run: mkdir c:\win_flex_bison
+      #
+      # - name: Extract win_flex_bison
+      #   shell: cmd
+      #   working-directory: c:\win_flex_bison
+      #   run: 7z x "${{github.workspace}}\downloads\win_flex_bison-${{env.win_flex_bison_version}}.zip"
+      #
+      # - name: Add win_flex_bison to PATH
+      #   shell: pwsh
+      #   run: echo "c:\win_flex_bison" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      #
+      #
+      # - name: Download gettext
+      #   shell: bash
+      #   working-directory: downloads
+      #   run: curl ${{env.curl_options}} https://github.com/mlocati/gettext-iconv-windows/releases/download/v${{env.gettext_only_version}}-v${{env.gettext_iconv_version}}/gettext${{env.gettext_only_version}}-iconv${{env.gettext_iconv_version}}-static-${{env.arch_bits}}.zip
+      #
+      # - name: Extract gettext
+      #   shell: cmd
+      #   working-directory: build
+      #   run: |
+      #     mkdir gettext
+      #     cd gettext
+      #     7z x "..\..\downloads\gettext${{env.gettext_only_version}}-iconv${{env.gettext_iconv_version}}-static-${{env.arch_bits}}.zip"
+      #
+      # - name: Install gettext
+      #   shell: bash
+      #   working-directory: build/gettext
+      #   run: cp -v bin/*.exe ${{env.prefix_path_forwardslash}}/bin/
 
 
       - name: Download pkgconf
