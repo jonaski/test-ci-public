@@ -318,7 +318,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{matrix.arch}}
-          sdk: 10.0.26100.4654
+          sdk: 10.0.22000.194
           vsversion: 2022
 
 
