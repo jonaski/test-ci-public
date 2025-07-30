@@ -189,14 +189,14 @@ jobs:
     steps:
 
       - name: Dir
-        if: matrix.arch == 'x86'
+        #if: matrix.arch == 'x86'
         shell: cmd
         run: dir "C:\Program Files (x86)\Windows Kits\10\include"
 
       - name: Dir
         if: matrix.arch != 'x86'
         shell: cmd
-        run: dir "C:\Program Files\Windows Kits\10\include"
+        run: dir "C:\Program Files\Windows Kits\"
 
       - name: Set buildtype
         shell: bash
@@ -328,7 +328,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{matrix.arch}}
-          sdk: 10.0.22000.194
+          sdk: 10.0.22000.0
           vsversion: 2022
 
 
