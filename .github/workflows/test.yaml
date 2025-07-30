@@ -196,8 +196,8 @@ jobs:
       - name: Dir
         shell: cmd
         run: |
-          dir "C:\Program Files\Microsoft Visual Studio\"
-          dir "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+          dir "C:\Program Files\"
+          dir "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\SDK"
           dir "C:\Program Files\Microsoft Visual Studio 14.0\Common7\IDE"
 
       - name: Set buildtype
