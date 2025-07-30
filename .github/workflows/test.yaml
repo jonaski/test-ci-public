@@ -468,7 +468,6 @@ jobs:
         run: 7z x ../downloads/icu4c-${{env.icu4c_version_underscore}}-src.zip
 
       - name: Set windows SDK version for icu
-        if: matrix.arch == 'arm64'
         shell: bash
         working-directory: build/icu/source
         run: sed -i 's/10.0.22621.0/${{env.sdk_version}}/g' allinone/Build.Windows.ProjectConfiguration.props
