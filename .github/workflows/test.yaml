@@ -345,7 +345,7 @@ jobs:
           vsversion: 2022
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
 
       - name: Create downloads directory
