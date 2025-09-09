@@ -811,6 +811,7 @@ jobs:
           LDFLAGS: -L${{env.prefix_path}}/lib -Wl,-rpath,${{env.prefix_path}}/lib
           LIBRARY_PATH: ${{env.prefix_path}}/lib
           LD_LIBRARY_PATH: ${{env.prefix_path}}/lib
+          DYLD_LIBRARY_PATH: ${{env.prefix_path}}/lib
         run: |
           cargo install cargo-c
           cargo-cbuild --version
