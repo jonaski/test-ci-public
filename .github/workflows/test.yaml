@@ -367,22 +367,6 @@ jobs:
         run: which gh
 
 
-      - name: Install cargo-c
-        if: env.runner == 'macos-13' || env.runner == 'macos-14' || env.runner == 'macos-15'
-        shell: bash
-        env:
-          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path}}/bin/pkgconf
-          PKG_CONFIG_PATH: ${{env.prefix_path}}/lib/pkgconfig
-          CFLAGS: -I${{env.prefix_path}}/include
-          CXXFLAGS: -I${{env.prefix_path}}/include
-          LDFLAGS: -L${{env.prefix_path}}/lib -Wl,-rpath,${{env.prefix_path}}/lib
-          LIBRARY_PATH: ${{env.prefix_path}}/lib
-          LD_LIBRARY_PATH: ${{env.prefix_path}}/lib
-        run: |
-          cargo install cargo-c
-          install_name_tool -change "@rpath/libz.1.dylib" "${{env.prefix_path}}/lib/libz.1.dylib" "/Users/runner/.cargo/bin/cargo-cbuild"
-
-
       - name: Download pkgconf
         shell: bash
         working-directory: downloads
@@ -415,6 +399,23 @@ jobs:
       - name: which pkg-config
         shell: bash
         run: which pkg-config
+
+
+      - name: Install cargo-c
+        if: env.runner == 'macos-13' || env.runner == 'macos-14' || env.runner == 'macos-15'
+        shell: bash
+        env:
+          PKG_CONFIG_EXECUTABLE: ${{env.prefix_path}}/bin/pkgconf
+          PKG_CONFIG_PATH: ${{env.prefix_path}}/lib/pkgconfig
+          CFLAGS: -I${{env.prefix_path}}/include
+          CXXFLAGS: -I${{env.prefix_path}}/include
+          LDFLAGS: -L${{env.prefix_path}}/lib -Wl,-rpath,${{env.prefix_path}}/lib
+          LIBRARY_PATH: ${{env.prefix_path}}/lib
+          LD_LIBRARY_PATH: ${{env.prefix_path}}/lib
+        run: |
+          cargo install cargo-c
+          cargo-c --version
+          #install_name_tool -change "@rpath/libz.1.dylib" "${{env.prefix_path}}/lib/libz.1.dylib" "/Users/runner/.cargo/bin/cargo-cbuild"
 
 
       - name: Download m4
