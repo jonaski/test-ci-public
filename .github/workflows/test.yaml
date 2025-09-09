@@ -813,7 +813,7 @@ jobs:
           LD_LIBRARY_PATH: ${{env.prefix_path}}/lib
         run: |
           cargo install cargo-c
-          cargo-c --version
+          cargo-cbuild --version
           #install_name_tool -change "@rpath/libz.1.dylib" "${{env.prefix_path}}/lib/libz.1.dylib" "/Users/runner/.cargo/bin/cargo-cbuild"
 
 
