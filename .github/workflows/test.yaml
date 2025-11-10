@@ -84,6 +84,7 @@ jobs:
           ls -la /c/ProgramData/chocolatey/lib/
           ls -la /c/ProgramData/chocolatey/lib/rsync/
           ls -la /c/ProgramData/chocolatey/lib/rsync/tools/
+          ls -la /c/ProgramData/chocolatey/lib/rsync/tools/bin
           echo "ssh_command=/c/ProgramData/chocolatey/lib/rsync/tools/$(ls -1 /c/ProgramData/chocolatey/lib/rsync/tools/ | grep -v '\.zip$' | grep '^cwrsync' | tail -1)/bin/ssh.exe" >> $GITHUB_ENV
 
       - name: Cleanup PATH
