@@ -517,6 +517,7 @@ jobs:
         working-directory: build
         run: git clone --depth 1 --recurse-submodules -b "meson-${{env.ffmpeg_version}}" https://gitlab.freedesktop.org/gstreamer/meson-ports/ffmpeg
 
+        # ffmpeg 8.0 doesn't build on x86, use version 7.1.2 instead
       - name: Checkout ffmpeg
         if: matrix.arch == 'x86'
         shell: bash
