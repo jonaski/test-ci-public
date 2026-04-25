@@ -289,7 +289,7 @@ jobs:
 
       - name: Create directories
         shell: bash
-        run: mkdir -p ${{env.prefix_path_unix}}/{bin,lib,include}
+        run: mkdir -p ${{env.prefix_path_unix}}/{bin,lib,include} ${{env.prefix_path_unix}}/lib/pkgconfig
 
       - name: Update PATH
         shell: pwsh
