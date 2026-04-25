@@ -80,7 +80,7 @@ env:
 
   wavpack_version: '5.9.0'
 
-  opus_version: '1.5.2'
+  opus_version: '1.6.1'
 
   opusfile_version: '0.12'
 
@@ -355,85 +355,38 @@ jobs:
         run: mkdir build
 
 
-      - name: Download FFTW (x86_64)
-        if: matrix.arch == 'x86_64'
+      - name: Download opus
         shell: bash
         working-directory: downloads
-        run: curl ${{env.curl_options}} https://github.com/strawberrymusicplayer/fftw3-mingw-cross/releases/download/${{env.fftw_mingw_version}}/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}.tar.xz
+        run: curl ${{env.curl_options}} https://downloads.xiph.org/releases/opus/opus-${{env.opus_version}}.tar.gz || curl ${{env.curl_options}} https://github.com/xiph/opus/releases/download/v${{env.opus_version}}/opus-${{env.opus_version}}.tar.gz
 
-      - name: Extract FFTW (x86_64)
-        if: matrix.arch == 'x86_64'
+      - name: Extract opus
         shell: bash
         working-directory: build
-        run: tar -xvf ../downloads/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}.tar.xz
+        run: tar -xf ../downloads/opus-${{env.opus_version}}.tar.gz
 
-      - name: Update fftw3.pc (x86_64)
-        if: matrix.arch == 'x86_64'
+      - name: Patch opus
         shell: bash
-        working-directory: build/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}/lib/pkgconfig
-        run: |
-          sed -i "s,^prefix=.*,prefix=${{env.prefix_path_forwardslash}},g" fftw3.pc
-          sed -i "s,^exec_prefix=.*,exec_prefix=${{env.prefix_path_forwardslash}},g" fftw3.pc
-          sed -i "s,^libdir=.*,libdir=${{env.prefix_path_forwardslash}}/lib,g" fftw3.pc
-          sed -i "s,^includedir=.*,includedir=${{env.prefix_path_forwardslash}}/include,g" fftw3.pc
+        working-directory: build/opus-${{env.opus_version}}
+        run: sed -i '/include(opus_buildtype.cmake)/d' CMakeLists.txt
 
-      - name: Generate lib (x86_64)
-        if: matrix.arch == 'x86_64'
-        shell: bash
-        working-directory: build/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}/lib
-        run: lib /machine:${{env.arch_short}} /def:libfftw3-3.def
-
-      - name: Install FFTW (x86_64)
-        if: matrix.arch == 'x86_64'
-        shell: bash
-        working-directory: build/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}
-        run: |
-          cp -v include/*.h ${{env.prefix_path_unix}}/include/
-          cp -v bin/*.dll ${{env.prefix_path_unix}}/bin/
-          cp -v lib/*.lib ${{env.prefix_path_unix}}/lib/
-          cp -v lib/pkgconfig/*.pc ${{env.prefix_path_unix}}/lib/pkgconfig/
-
-
-      - name: Download FFTW (arm64)
-        if: matrix.arch == 'arm64'
-        shell: bash
-        working-directory: downloads
-        run: |
-          curl ${{env.curl_options}} https://www.fftw.org/fftw-${{env.fftw_source_version}}.tar.gz || \
-          curl ${{env.curl_options}} https://${{env.sourceforge_mirror1}}/project/fftw/fftw/${{env.fftw_source_version}}/fftw-${{env.fftw_source_version}}.tar.gz || \
-          curl ${{env.curl_options}} https://${{env.sourceforge_mirror2}}/project/fftw/fftw/${{env.fftw_source_version}}/fftw-${{env.fftw_source_version}}.tar.gz
-
-      - name: Extract FFTW (arm64)
-        if: matrix.arch == 'arm64'
-        shell: bash
-        working-directory: build
-        run: tar -xf ../downloads/fftw-${{env.fftw_source_version}}.tar.gz
-
-      - name: Extract FFTW (arm64)
-        if: matrix.arch == 'arm64'
-        shell: bash
-        working-directory: build/fftw-${{env.fftw_source_version}}
-        run: patch -p1 < ../../patches/fftw-fixes.patch
-
-      - name: Configure FFTW (arm64)
-        if: matrix.arch == 'arm64'
+      - name: Configure opus
         shell: cmd
-        working-directory: build/fftw-${{env.fftw_source_version}}
-        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "${{env.cmake_generator}}" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX=${{env.prefix_path_backslash}} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTS=OFF -DENABLE_AVX=ON -DENABLE_AVX2=OFF -DENABLE_SSE=ON -DENABLE_SSE2=ON -DENABLE_THREADS=ON -DWITH_COMBINED_THREADS=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+        working-directory: build/opus-${{env.opus_version}}
+        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "${{env.cmake_generator}}" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path_backslash}}" -DBUILD_SHARED_LIBS=ON
 
-      - name: Build FFTW (arm64)
-        if: matrix.arch == 'arm64'
+      - name: Build opus
         shell: cmd
-        working-directory: build/fftw-${{env.fftw_source_version}}/build
+        working-directory: build/opus-${{env.opus_version}}/build
         run: cmake --build .
 
-      - name: Install FFTW (arm64)
-        if: matrix.arch == 'arm64'
+      - name: Install opus
         shell: cmd
-        working-directory: build/fftw-${{env.fftw_source_version}}/build
+        working-directory: build/opus-${{env.opus_version}}/build
         run: cmake --install .
 
-      - name: Check fftw
+      - name: Check opus
         shell: cmd
-        run: pkg-config fftw3 --libs --cflags
+        run: pkg-config opus --libs --cflags
+
 
