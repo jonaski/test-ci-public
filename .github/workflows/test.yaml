@@ -365,15 +365,10 @@ jobs:
         working-directory: build
         run: tar -xf ../downloads/opus-${{env.opus_version}}.tar.gz
 
-      #- name: Patch opus
-        #shell: bash
-        #working-directory: build/opus-${{env.opus_version}}
-        #run: sed -i '/include(opus_buildtype.cmake)/d' CMakeLists.txt
-
       - name: Configure opus
         shell: cmd
         working-directory: build/opus-${{env.opus_version}}
-        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "${{env.cmake_generator}}" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path_backslash}}" -DBUILD_SHARED_LIBS=ON
+        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "${{env.cmake_generator}}" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path_backslash}}" -DBUILD_SHARED_LIBS=ON -DOPUS_DRED=OFF -DOPUS_OSCE=OFF
 
       - name: Build opus
         shell: cmd
