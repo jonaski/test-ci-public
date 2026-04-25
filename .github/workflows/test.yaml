@@ -365,10 +365,10 @@ jobs:
         working-directory: build
         run: tar -xf ../downloads/opus-${{env.opus_version}}.tar.gz
 
-      - name: Patch opus
-        shell: bash
-        working-directory: build/opus-${{env.opus_version}}
-        run: sed -i '/include(opus_buildtype.cmake)/d' CMakeLists.txt
+      #- name: Patch opus
+        #shell: bash
+        #working-directory: build/opus-${{env.opus_version}}
+        #run: sed -i '/include(opus_buildtype.cmake)/d' CMakeLists.txt
 
       - name: Configure opus
         shell: cmd
