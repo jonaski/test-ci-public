@@ -359,7 +359,7 @@ jobs:
         if: matrix.arch == 'x86_64'
         shell: bash
         working-directory: downloads
-        run: https://github.com/strawberrymusicplayer/fftw3-mingw-cross/releases/download/${{env.fftw_mingw_version}}/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}.tar.xz
+        run: curl ${{env.curl_options}} https://github.com/strawberrymusicplayer/fftw3-mingw-cross/releases/download/${{env.fftw_mingw_version}}/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}.tar.xz
 
       - name: Extract FFTW (x86_64)
         if: matrix.arch == 'x86_64'
