@@ -368,7 +368,7 @@ jobs:
       - name: Configure opus
         shell: cmd
         working-directory: build/opus-${{env.opus_version}}
-        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "${{env.cmake_generator}}" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path_backslash}}" -DBUILD_SHARED_LIBS=ON -DOPUS_DRED=OFF -DOPUS_OSCE=OFF
+        run: cmake --log-level="${{env.cmake_loglevel}}" -S . -B build -G "${{env.cmake_generator}}" -DCMAKE_BUILD_TYPE="${{env.cmake_buildtype}}" -DCMAKE_INSTALL_PREFIX="${{env.prefix_path_backslash}}" -DBUILD_SHARED_LIBS=ON -DOPUS_DRED=OFF -DOPUS_OSCE=OFF -DOPUS_DISABLE_INTRINSICS=ON
 
       - name: Build opus
         shell: cmd
