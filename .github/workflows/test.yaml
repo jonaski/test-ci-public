@@ -295,13 +295,13 @@ jobs:
         shell: pwsh
         run: echo "${{env.prefix_path_backslash}}\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-      - name: Copy bin files
-        shell: bash
-        run: cp /c/strawberry/c/bin/{patch.exe,strip.exe,strings.exe,objdump.exe} ${{env.prefix_path_unix}}/bin
+      #- name: Copy bin files
+        #shell: bash
+        #run: cp /c/strawberry/c/bin/{patch.exe,strip.exe,strings.exe,objdump.exe} ${{env.prefix_path_unix}}/bin
 
-      - name: Delete conflicting libraries
-        shell: bash
-        run: rm -rf /c/{msys64,mingw32,mingw64,clangarm64} /c/strawberry/c
+      #- name: Delete conflicting libraries
+        #shell: bash
+        #run: rm -rf /c/{msys64,mingw32,mingw64,clangarm64} /c/strawberry/c
 
       # - name: Delete conflicting icu
       #   shell: bash
@@ -364,13 +364,13 @@ jobs:
       - name: Extract FFTW (x86_64)
         if: matrix.arch == 'x86_64'
         shell: bash
-        working-directory: downloads
-        run: tar -xvf ../fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}.tar.xz
+        working-directory: build
+        run: tar -xvf ../downloads/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}.tar.xz
 
       - name: Update fftw3.pc (x86_64)
         if: matrix.arch == 'x86_64'
         shell: bash
-        working-directory: downloads/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}/lib/pkgconfig
+        working-directory: build/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}/lib/pkgconfig
         run: |
           sed -i "s,^prefix=.*,prefix=${{env.prefix_path_forwardslash}},g" fftw3.pc
           sed -i "s,^exec_prefix=.*,exec_prefix=${{env.prefix_path_forwardslash}},g" fftw3.pc
@@ -380,13 +380,13 @@ jobs:
       - name: Generate lib (x86_64)
         if: matrix.arch == 'x86_64'
         shell: bash
-        working-directory: downloads/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}
+        working-directory: build/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}
         run: lib /machine:${{env.arch_short}} /def:libfftw3-3.def
 
       - name: Install FFTW (x86_64)
         if: matrix.arch == 'x86_64'
         shell: bash
-        working-directory: downloads/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}
+        working-directory: build/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}
         run: |
           cp -v include/*.h ${{env.prefix_path_unix}}/include/
           cp -v bin/*.dll ${{env.prefix_path_unix}}/bin/
