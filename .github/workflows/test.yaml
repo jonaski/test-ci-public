@@ -380,7 +380,7 @@ jobs:
       - name: Generate lib (x86_64)
         if: matrix.arch == 'x86_64'
         shell: bash
-        working-directory: build/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}
+        working-directory: build/fftw-x86_64-w64-mingw32-${{env.buildtype}}-${{env.fftw_mingw_version}}/lib
         run: lib /machine:${{env.arch_short}} /def:libfftw3-3.def
 
       - name: Install FFTW (x86_64)
