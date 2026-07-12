@@ -203,7 +203,9 @@ jobs:
 
       - name: date
         shell: bash
-        run: which date
+        run: |
+          ls -la /c/
+          find /c/{msys64,mingw32,mingw64,clangarm64} -name 'date'
 
       - name: Set buildtype
         shell: bash
