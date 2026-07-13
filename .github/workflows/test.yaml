@@ -211,7 +211,7 @@ jobs:
 
       - name: date
         shell: cmd
-        run: date.exe "+%B %Y"
+        run: date.exe +%B %Y
 
       - name: Set buildtype
         shell: bash
