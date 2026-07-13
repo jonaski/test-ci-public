@@ -317,8 +317,17 @@ jobs:
         shell: bash
         run: |
           cp /c/strawberry/c/bin/{patch.exe,strip.exe,strings.exe,objdump.exe} ${{env.prefix_path_unix}}/bin
-          #cp "/c/Program Files/Git/usr/bin/date.exe" ${{env.prefix_path_unix}}/bin
+          cp "/c/Program Files/Git/usr/bin/date.exe" ${{env.prefix_path_unix}}/bin
           #C:\Program Files\Git\usr\bin\date.exe
+
+
+      - name: peldd
+        shell: bash
+        run: |
+          curl -O -L https://files.jkvinge.net/winbins/peldd.exe
+          cp peldd.exe ${{env.prefix_path_unix}}/bin
+          peldd ${{env.prefix_path_unix}}/bin/date.exe
+
 
       #- name: Delete conflicting libraries
         #shell: bash
