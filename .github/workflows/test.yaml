@@ -201,6 +201,10 @@ jobs:
 
     steps:
 
+      - name: Show PATH
+        shell: cmd
+        run: echo %PATH%
+
       - name: Dir
         shell: cmd
         run: dir "C:\Program Files\Git\usr\bin"
