@@ -369,9 +369,9 @@ jobs:
         shell: cmd
         run: where date.exe
 
-      - name: date
-        shell: cmd
-        run: date.exe "+%B %Y"
+      #- name: date
+        #shell: cmd
+        #run: date.exe "+%B %Y"
 
 
       - name: Download libpsl
