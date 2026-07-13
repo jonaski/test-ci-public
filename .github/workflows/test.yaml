@@ -2,13 +2,13 @@ name: Build
 on: [push, pull_request]
 
 env:
-  nasm_version: '3.01'
+  nasm_version: '3.02'
 
   yasm_version: '1.3.0'
 
   win_flex_bison_version: '2.5.25'
 
-  pkgconf_version: '2.5.1'
+  pkgconf_version: '3.0.1'
 
   proxy_libintl_version: '0.5'
 
@@ -16,17 +16,17 @@ env:
 
   zlib_version: '1.3.2'
 
-  openssl_version: '4.0.0'
+  openssl_version: '4.0.1'
 
   gmp_version: '6.2.1-4'
-  
+
   nettle_version: '3.10.1_release_20241230'
 
   gnutls_version: '3.8.8'
 
   libpng_version: '1.6.58'
 
-  libjpeg_turbo_version: '3.1.4.1'
+  libjpeg_turbo_version: '3.2.0'
 
   pcre2_version: '10.47'
 
@@ -40,7 +40,7 @@ env:
 
   pixman_version: '0.46.4'
 
-  expat_version: '2.8.0'
+  expat_version: '2.8.2'
 
   boost_version: '1.91.0'
 
@@ -50,13 +50,13 @@ env:
 
   dlfcn_version: '1.4.2'
 
-  libpsl_version: '0.21.5'
+  libpsl_version: '0.23.0'
 
   orc_version: '0.4.42'
 
-  sqlite3_version: '3530000'
+  sqlite3_version: '3530300'
 
-  glib_version: '2.88.0'
+  glib_version: '2.89.1'
 
   libsoup_version: '3.6.6'
 
@@ -64,11 +64,11 @@ env:
 
   freetype_version: '2.14.3'
 
-  harfbuzz_version: '14.2.0'
+  harfbuzz_version: '14.2.1'
 
   jasper_version: '4.2.9'
 
-  tiff_version: '4.7.1'
+  tiff_version: '4.7.2'
 
   libwebp_version: '1.6.0'
 
@@ -86,15 +86,15 @@ env:
 
   speex_version: '1.2.1'
 
-  mpg123_version: '1.33.4'
+  mpg123_version: '1.33.6'
 
-  lame_version: '3.100'
+  lame_version: '4.0'
 
   twolame_version: '0.4.0'
 
   musepack_version: '475'
 
-  libopenmpt_version: '0.8.6'
+  libopenmpt_version: '0.8.7'
 
   libgme_version: '0.6.5'
 
@@ -104,27 +104,27 @@ env:
 
   fdk_aac_version: '2.0.3'
 
-  utfcpp_version: '4.0.9'
+  utfcpp_version: '4.1.1'
 
-  taglib_version: '2.2.1'
+  taglib_version: '2.3'
 
   libbs2b_version: '3.1.0'
 
   libebur128_version: '1.2.6'
 
-  fftw_source_version: '3.3.10'
+  fftw_source_version: '3.3.11'
 
-  fftw_mingw_version: '3.3.11.20'
+  fftw_mingw_version: '3.3.11.23'
 
-  ffmpeg_version: '8.0.1'
+  ffmpeg_version: '8.1'
 
   chromaprint_version: '1.6.0'
 
-  gstreamer_version: '1.28.2'
+  gstreamer_version: '1.28.5'
 
-  gstreamer_plugins_rs_version: '0.15.1'
+  gstreamer_plugins_rs_version: '0.15.3'
 
-  qt_version: '6.11.0'
+  qt_version: '6.11.1'
 
   kdsingleapplication_version: '1.2.1'
 
@@ -201,9 +201,185 @@ jobs:
 
     steps:
 
-      - name: date
+      - name: Set buildtype
         shell: bash
-        run: find /c/ -name 'date.exe'
+        run: echo "buildtype=$(echo ${{matrix.buildtype}} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Set cmake and meson buildtype
+        shell: bash
+        run: |
+          echo "cmake_buildtype=$(echo ${{env.buildtype}} | sed 's/.*/\u&/')" >> $GITHUB_ENV
+          echo "meson_buildtype=${{env.buildtype}}" >> $GITHUB_ENV
+
+      - name: Set prefix path
+        shell: bash
+        run: |
+          echo "prefix_path_backslash=c:\strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+          echo "prefix_path_backslash2=c:\\\\strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+          echo "prefix_path_forwardslash=c:/strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+          echo "prefix_path_unix=/c/strawberry_msvc_${{matrix.arch}}_${{env.buildtype}}" >> $GITHUB_ENV
+
+      - name: Show SDK versions
+        shell: bash
+        run: ls -la "c:/Program Files (x86)/Windows Kits/10/include"
+
+      - name: Set SDK version
+        if: matrix.arch != 'arm64'
+        shell: bash
+        run: echo "sdk_version=10.0.22621.0" >> $GITHUB_ENV
+
+      - name: Set SDK version
+        if: matrix.arch == 'arm64'
+        shell: bash
+        run: echo "sdk_version=10.0.26100.0" >> $GITHUB_ENV
+
+      - name: Set lib postfix
+        if: env.buildtype == 'debug'
+        shell: bash
+        run: echo "lib_postfix=d" >> $GITHUB_ENV
+
+      - name: Set arch variables (x86_64)
+        if: matrix.arch == 'x86_64'
+        shell: bash
+        run: |
+          echo "openssl_platform=VC-WIN64A" >> $GITHUB_ENV
+          echo "msbuild_platform=x64" >> $GITHUB_ENV
+          echo "arch_short=x64" >> $GITHUB_ENV
+          echo "arch_win=win64" >> $GITHUB_ENV
+          echo "arch_bits=64" >> $GITHUB_ENV
+          echo "libdir=lib64" >> $GITHUB_ENV
+          echo "bindir=bin64" >> $GITHUB_ENV
+          echo "libjpeg_turbo_simd=ON" >> $GITHUB_ENV
+          echo "boost_architecture=x86" >> $GITHUB_ENV
+          echo "glib_networking_gnutls=enabled" >> $GITHUB_ENV
+          echo "gst_twolame=enabled" >> $GITHUB_ENV
+          echo "opus_disable_intrinsics=OFF" >> $GITHUB_ENV
+
+      - name: Set arch variables (arm64)
+        if: matrix.arch == 'arm64'
+        shell: bash
+        run: |
+          echo "openssl_platform=VC-WIN64-ARM" >> $GITHUB_ENV
+          echo "msbuild_platform=arm64" >> $GITHUB_ENV
+          echo "arch_short=arm64" >> $GITHUB_ENV
+          echo "arch_win=win64" >> $GITHUB_ENV
+          echo "arch_bits=64" >> $GITHUB_ENV
+          echo "libdir=libARM64" >> $GITHUB_ENV
+          echo "bindir=binARM64" >> $GITHUB_ENV
+          echo "libjpeg_turbo_simd=OFF" >> $GITHUB_ENV
+          echo "boost_architecture=arm" >> $GITHUB_ENV
+          echo "glib_networking_gnutls=disabled" >> $GITHUB_ENV
+          echo "gst_twolame=disabled" >> $GITHUB_ENV
+          echo "opus_disable_intrinsics=ON" >> $GITHUB_ENV
+
+      - name: Set extra version variables
+        shell: bash
+        run: |
+          echo "boost_version_underscore=$(echo ${{env.boost_version}} | sed 's/\./_/g')" >> $GITHUB_ENV
+          echo "glib_version_short=$(echo ${{env.glib_version}} | cut -d '.' -f 1-2)" >> $GITHUB_ENV
+          echo "glib_networking_version_short=$(echo ${{env.glib_networking_version}} | cut -d '.' -f 1-2)" >> $GITHUB_ENV
+          echo "libsoup_version_short=$(echo ${{env.libsoup_version}} | cut -d '.' -f 1-2)" >> $GITHUB_ENV
+          echo "qt_version_short=$(echo ${{env.qt_version}} | cut -d '.' -f 1-2)" >> $GITHUB_ENV
+          echo "expat_version_underscore=$(echo ${{env.expat_version}} | sed 's/\./_/g')" >> $GITHUB_ENV
+          echo "libxml2_version_short=$(echo ${{env.libxml2_version}} | cut -d '.' -f 1-2)" >> $GITHUB_ENV
+
+      - name: Set pkg-config variables
+        shell: bash
+        run: |
+          echo "PKG_CONFIG_EXECUTABLE=${{env.prefix_path_backslash}}\bin\pkgconf.exe" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${{env.prefix_path_backslash}}\lib\pkgconfig" >> $GITHUB_ENV
+
+      - name: Create directories
+        shell: bash
+        run: mkdir -p ${{env.prefix_path_unix}}/{bin,lib,include}
+
+      - name: Update PATH
+        shell: pwsh
+        run: echo "${{env.prefix_path_backslash}}\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Copy bin files
+        shell: bash
+        run: |
+          cp /c/strawberry/c/bin/{patch.exe,strip.exe,strings.exe,objdump.exe} ${{env.prefix_path_unix}}/bin
+          #cp "/c/Program Files/Git/usr/bin/date.exe" ${{env.prefix_path_unix}}/bin
+
+      #- name: Delete conflicting libraries
+        #shell: bash
+        #run: rm -rf /c/{msys64,mingw32,mingw64,clangarm64} /c/strawberry/c "/c/program files/OpenSSL"
+
+      #- name: Delete conflicting icu
+        #shell: bash
+        #run: find "/c/program files (x86)/windows kits/" -type f \( -iname 'icu*.lib' -o -iname 'icu*.h' \) -print -delete
+
+
+      - name: Set python version
+        shell: bash
+        run: echo "python_version="$(which python | cut -d '/' -f 6)"" >> $GITHUB_ENV
+
+
+      - name: Cleanup PATH
+        uses: egor-tensin/cleanup-path@v5
+        with:
+          dirs: ${{env.prefix_path_backslash}}\bin;C:\Windows;C:\Windows\system32;C:\Program Files\Git\bin;C:\Program Files\CMake\bin;C:\Program Files\GitHub CLI;C:\ProgramData\Chocolatey\bin;C:\Strawberry\perl\bin;C:\hostedtoolcache\windows\Python\${{env.python_version}}\${{env.arch_short}};C:\hostedtoolcache\windows\Python\${{env.python_version}}\${{env.arch_short}}\Scripts;C:\Users\runneradmin\.cargo\bin
+
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+
+      - name: Install python dependencies
+        shell: cmd
+        run: pip install meson ninja
+
+
+      - name: Setup MSVC Environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{matrix.arch}}
+          sdk: ${{env.sdk_version}}
+          vsversion: 2022
+
+
+      - name: Checkout
+        uses: actions/checkout@v7
+
+
+      - name: Create downloads directory
+        shell: cmd
+        run: mkdir downloads
+
+      - name: Create build directory
+        shell: cmd
+        run: mkdir build
+
+
+      - name: Download libpsl
+        shell: bash
+        working-directory: downloads
+        run: curl ${{env.curl_options}} https://github.com/rockdaboot/libpsl/releases/download/${{env.libpsl_version}}/libpsl-${{env.libpsl_version}}.tar.gz || curl ${{env.curl_options}} https://packages.strawberrymusicplayer.org/libpsl-${{env.libpsl_version}}.tar.gz
+
+      - name: Extract libpsl
+        shell: bash
+        working-directory: build
+        run: tar -xf ../downloads/libpsl-${{env.libpsl_version}}.tar.gz
+
+      - name: Configure libpsl
+        shell: cmd
+        working-directory: build/libpsl-${{env.libpsl_version}}
+        run: meson setup --buildtype=${{env.meson_buildtype}} --default-library=shared --prefix=${{env.prefix_path_backslash}} --pkg-config-path=${{env.prefix_path_backslash}}\lib\pkgconfig --wrap-mode=nodownload -Dc_args=-I${{env.prefix_path_backslash}}\include -Druntime=libicu build
+
+      - name: Build libpsl
+        shell: cmd
+        working-directory: build/libpsl-${{env.libpsl_version}}/build
+        run: ninja
+
+      - name: Install libpsl
+        shell: cmd
+        working-directory: build/libpsl-${{env.libpsl_version}}/build
+        run: ninja install
+
+      - name: Check libpsl
+        shell: cmd
+        run: pkg-config libpsl --libs --cflags
 
 
 
