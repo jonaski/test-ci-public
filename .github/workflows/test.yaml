@@ -392,9 +392,9 @@ jobs:
         run: mkdir build
 
 
-      - name: Where date
-        shell: cmd
-        run: where date.exe
+      # - name: Where date
+      #   shell: cmd
+      #   run: where date.exe
 
       #- name: date
         #shell: cmd
