@@ -352,6 +352,11 @@ jobs:
         run: mkdir build
 
 
+      - name: Where date
+        shell: cmd
+        run: where date
+
+
       - name: Download libpsl
         shell: bash
         working-directory: downloads
@@ -363,7 +368,7 @@ jobs:
         run: tar -xf ../downloads/libpsl-${{env.libpsl_version}}.tar.gz
 
       - name: Configure libpsl
-        shell: pwsh
+        shell: cmd
         working-directory: build/libpsl-${{env.libpsl_version}}
         run: meson setup --buildtype=${{env.meson_buildtype}} --default-library=shared --prefix=${{env.prefix_path_backslash}} --pkg-config-path=${{env.prefix_path_backslash}}\lib\pkgconfig --wrap-mode=nodownload -Dc_args=-I${{env.prefix_path_backslash}}\include -Druntime=no build
 
